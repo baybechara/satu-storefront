@@ -5,6 +5,7 @@ import { Phone, ChevronDown, ChevronUp } from "lucide-react"
 import Image from "next/image"
 import { ProductDrawer } from "@/components/ProductDrawer"
 import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 const STORE_INFO = {
   name: "Beko Kyrgyzstan",
@@ -75,7 +76,7 @@ export default function Home() {
     : MOCK_PRODUCTS.filter(p => p.category === activeCategory)
 
   return (
-    <main className="min-h-screen pb-12">
+    <main className="min-h-screen pb-28 max-w-[820px] mx-auto relative">
       {/* Store Header */}
       <div className="px-4 pt-6 pb-2 relative z-20">
         <div className="flex justify-between items-start mb-4">
@@ -85,7 +86,7 @@ export default function Home() {
           <Button 
             size="icon" 
             render={<a href={`tel:${STORE_INFO.phone}`} />}
-            className="rounded-full h-12 w-12 shadow-sm bg-foreground text-background hover:bg-foreground/90"
+            className="h-12 w-12 bg-[#151515] text-white hover:bg-[#151515]/90"
           >
             <Phone className="w-5 h-5 fill-current" />
           </Button>
@@ -113,9 +114,9 @@ export default function Home() {
             <Button
               key={category}
               variant="outline"
-              className={`rounded-full snap-center whitespace-nowrap ${
+              className={`snap-center whitespace-nowrap ${
                 activeCategory === category 
-                  ? 'bg-foreground text-background border-transparent hover:bg-foreground/90' 
+                  ? 'bg-[#151515] text-white border-transparent hover:bg-[#151515]/90' 
                   : 'bg-background hover:bg-secondary/40'
               }`}
               onClick={() => setActiveCategory(category)}
@@ -132,9 +133,9 @@ export default function Home() {
           <div 
             key={product.id} 
             onClick={() => setSelectedProduct(product)}
-            className="bg-card text-card-foreground rounded-[calc(var(--radius)*1.5)] p-3 cursor-pointer flex flex-col h-full transition-all active:scale-[0.98]"
+            className="bg-card text-card-foreground rounded-2xl p-3 cursor-pointer flex flex-col h-full transition-all active:scale-[0.98]"
           >
-            <div className="relative w-full aspect-square rounded-[calc(var(--radius))] overflow-hidden bg-muted mb-3">
+            <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-muted mb-3">
               <Image src={product.images[0]} alt={product.name} fill className="object-cover" />
             </div>
             <div className="flex flex-col flex-grow">
@@ -155,6 +156,20 @@ export default function Home() {
         open={!!selectedProduct} 
         onOpenChange={(open) => !open && setSelectedProduct(null)} 
       />
+
+      {/* Floating Cart Button */}
+      <div className="fixed bottom-4 left-4 right-4 z-40 flex justify-center pointer-events-none pb-safe">
+        <Link 
+          href="/checkout"
+          className="relative pointer-events-auto bg-[#151515] text-white rounded-full w-full max-w-sm h-[46px] flex items-center justify-between p-1.5 transition-transform active:scale-[0.98]"
+        >
+          <div className="bg-white text-black font-semibold rounded-full w-[34px] h-[34px] flex items-center justify-center text-sm shrink-0">
+            3
+          </div>
+          <span className="font-medium text-[15px] absolute left-1/2 -translate-x-1/2">Корзина</span>
+          <span className="pr-4 font-medium text-[15px] text-white/90">3450 сом</span>
+        </Link>
+      </div>
     </main>
   )
 }

@@ -12,6 +12,11 @@ import { Minus, Plus } from "lucide-react"
 import { useState } from "react"
 import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+} from "@/components/ui/carousel"
 
 export function ProductDrawer({ product, open, onOpenChange }: { product: any, open: boolean, onOpenChange: (open: boolean) => void }) {
   const [quantity, setQuantity] = useState(1)
@@ -20,24 +25,28 @@ export function ProductDrawer({ product, open, onOpenChange }: { product: any, o
 
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
-      <DrawerContent className="bg-background border-border rounded-t-[calc(var(--radius)*3)] max-h-[90vh] max-w-[820px] mx-auto">
+      <DrawerContent className="bg-background border-border rounded-t-3xl max-h-[90vh] max-w-[820px] mx-auto">
         <DrawerTitle className="sr-only">{product.name}</DrawerTitle>
         <DrawerDescription className="sr-only">{product.category}</DrawerDescription>
 
         <div className="flex-1 overflow-y-auto px-4 pb-[120px] pt-4 scrollbar-hide">
           {/* Image Slider */}
-          <div className="flex overflow-x-auto snap-x snap-mandatory gap-3 pb-4 scrollbar-hide -mx-4 px-4">
-            {product.images.map((img: string, i: number) => (
-              <div key={i} className="relative min-w-[85vw] sm:min-w-[400px] h-[300px] snap-center shrink-0 rounded-[calc(var(--radius)*2)] overflow-hidden bg-muted border border-border/50">
-                <Image src={img} alt={product.name} fill className="object-cover" />
-              </div>
-            ))}
-          </div>
+          <Carousel className="w-full mb-4">
+            <CarouselContent className="-ml-3">
+              {product.images.map((img: string, i: number) => (
+                <CarouselItem key={i} className="pl-3 basis-[85%] sm:basis-1/2">
+                  <div className="relative h-[300px] rounded-2xl overflow-hidden bg-muted border border-border/50">
+                    <Image src={img} alt={product.name} fill className="object-cover" />
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+          </Carousel>
 
           <div className="space-y-6 mt-2">
             <div>
               <div className="mb-4">
-                <Badge variant="outline" className="text-muted-foreground font-medium rounded-full px-3 py-1">
+                <Badge variant="outline" className="text-muted-foreground font-medium px-3 py-1">
                   {product.category}
                 </Badge>
               </div>
@@ -71,9 +80,9 @@ export function ProductDrawer({ product, open, onOpenChange }: { product: any, o
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
-            <Button size="lg" className="flex-1 ml-4 font-semibold flex justify-between items-center pl-5 pr-1.5 py-1.5 h-auto min-h-[44px]">
+            <Button size="lg" className="flex-1 ml-4 font-semibold flex justify-between items-center pl-5 pr-1.5 py-1.5 h-[46px] rounded-full text-[#151515]">
               <span>В корзину</span>
-              <span className="bg-[#151515] text-white px-3 py-1.5 rounded-md text-sm">{product.price * quantity} сом</span>
+              <span className="bg-[#151515] text-white px-4 h-[34px] flex items-center justify-center rounded-full text-sm shrink-0">{product.price * quantity} сом</span>
             </Button>
           </div>
         </div>
