@@ -13,7 +13,7 @@ const STORE_INFO = {
   description: "Официальный магазин бытовой техники Beko. Широкий ассортимент качественной продукции для дома. Мы предоставляем гарантию 2 года на все товары и бесплатную доставку по Бишкеку.",
   shortDescription: "Официальный магазин бытовой техники Beko.",
   logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=200&h=200&fit=crop",
-  phone: "+996555123456"
+  phone: "+996 503 310 794"
 }
 
 const CATEGORIES = ["Все", "Соковыжималки", "Утюги", "Холодильники", "Стиральные машины", "Микроволновки"]
@@ -120,7 +120,7 @@ export default function Home() {
           </div>
           {/* Action Bar */}
           <div className={`flex items-center bg-background border border-border/60 rounded-md overflow-hidden shrink-0 transition-all duration-300 ${isScrolled ? 'h-8' : 'h-[42px]'}`}>
-            <a href={`tel:${STORE_INFO.phone}`} className={`flex items-center justify-center gap-2 hover:bg-muted transition-colors border-r border-border/60 text-sm font-semibold h-full ${isScrolled ? 'px-3' : 'px-4 sm:px-3'}`}>
+            <a href={`tel:${STORE_INFO.phone.replace(/\s/g, '')}`} className={`flex items-center justify-center gap-2 hover:bg-muted transition-colors border-r border-border/60 text-sm font-semibold h-full ${isScrolled ? 'px-3' : 'px-4 sm:px-3'}`}>
               <PhoneCall className={isScrolled ? "w-4 h-4" : "w-[18px] h-[18px]"} strokeWidth={2} />
               {!isScrolled && <span className="hidden sm:inline tracking-tight">{STORE_INFO.phone}</span>}
             </a>

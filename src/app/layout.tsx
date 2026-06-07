@@ -29,7 +29,7 @@ export default function RootLayout({
     >
       <body className="min-h-full w-full bg-secondary/40 relative">
         {children}
-        <Toaster position="bottom-center" />
+        <Toaster position="top-center" />
       </body>
     </html>
   );

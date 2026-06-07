@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
@@ -23,6 +23,7 @@ import {
 
 import { useCartStore } from "@/store/useCartStore"
 import { useEffect } from "react"
+import { cn } from "@/lib/utils"
 
 const DELIVERY_SETTINGS = {
   pickup: {
@@ -33,6 +34,12 @@ const DELIVERY_SETTINGS = {
     freeThreshold: 4000
   }
 }
+
+const WhatsAppIcon = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" stroke="none" className={className}>
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 0 0-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/>
+  </svg>
+)
 
 export default function CheckoutPage() {
   const { items, totalPrice, updateQuantity, removeItem } = useCartStore()
@@ -66,28 +73,36 @@ export default function CheckoutPage() {
       return
     }
 
-    let text = `Здравствуйте! Хочу оформить заказ:\n\n`
+    let text = `*Здравствуйте! Хочу оформить заказ:*\n\n`
+    text += `*Корзина:*\n`
     items.forEach((item, index) => {
-      text += `${index + 1}. ${item.product.name} — ${item.quantity} шт. (${item.product.price} сом/шт.)\n`
+      text += `- ${item.product.name} — ${item.quantity} шт. (${item.product.price} сом)\n`
     })
     
-    text += `\nИтого товары: ${itemsTotal} сом`
+    text += `\n*Итого товары:* ${itemsTotal} сом\n`
     
+    text += `\n*Способ получения:*\n`
     if (deliveryMethod === "delivery") {
-      text += `\nДоставка: курьером (${deliveryCost === 0 ? "Бесплатно" : deliveryCost + " сом"})`
-      text += `\nСумма с доставкой: ${itemsTotal + deliveryCost} сом`
+      text += `- Курьером\n`
+      text += `- Стоимость: ${deliveryCost === 0 ? "Бесплатно" : deliveryCost + " сом"}\n`
+      text += `*Сумма к оплате: ${itemsTotal + deliveryCost} сом*\n`
     } else if (deliveryMethod === "pickup") {
-      text += `\nСпособ получения: Самовывоз из магазина`
+      text += `- Самовывоз из магазина\n`
+      text += `*Сумма к оплате: ${itemsTotal} сом*\n`
     } else {
-      text += `\nСпособ получения: Нужна консультация`
+      text += `- Нужна консультация\n`
+      text += `*Сумма к оплате: ${itemsTotal} сом*\n`
     }
 
-    text += `\n\nДанные покупателя:\nИмя: ${name}\nТелефон: ${phone}`
-    if (deliveryMethod === "delivery" && address) text += `\nАдрес: ${address}`
-    if (comment) text += `\nКомментарий: ${comment}`
+    text += `\n*Данные покупателя:*\n`
+    text += `- Имя: ${name}\n`
+    text += `- Телефон: ${phone}\n`
+    if (deliveryMethod === "delivery" && address) text += `- Адрес: ${address}\n`
+    if (comment) text += `\n*Комментарий:*\n${comment}`
 
     setOrderText(text)
     setIsSubmitted(true)
+    window.scrollTo(0, 0)
   }
   
   const minOrder = 4000 // For the warning message below if needed
@@ -111,17 +126,17 @@ export default function CheckoutPage() {
       <main className="min-h-screen bg-muted/30 pb-20 flex flex-col items-center pt-12 px-4">
         <div className="w-full max-w-[600px] flex flex-col items-center">
           <h1 className="text-[28px] leading-tight font-semibold text-foreground mb-3 tracking-tight text-center">
-            Подтвердите заказ
+            Заказ отправлен!
           </h1>
           <p className="text-[15px] text-muted-foreground text-center mb-8 max-w-sm">
-            Отправьте нам данные для подтверждения заказа
+            Мы свяжемся с вами в ближайшее время. Для ускорения обработки, вы можете продублировать заказ в WhatsApp.
           </p>
 
           <Button 
             className="w-full sm:w-auto px-10 bg-[#25D366] hover:bg-[#25D366]/90 text-white font-medium text-[17px] rounded-full py-7 mb-10 shadow-xl shadow-[#25D366]/20 transition-all active:scale-[0.98]"
-            onClick={() => window.open(`https://wa.me/996555123456?text=${encodeURIComponent(orderText)}`, '_blank')}
+            onClick={() => window.open(`https://wa.me/996503310794?text=${encodeURIComponent(orderText)}`, '_blank')}
           >
-            <MessageCircle className="w-6 h-6 mr-2.5" />
+            <WhatsAppIcon className="w-6 h-6 mr-2.5" />
             Отправить WhatsApp
           </Button>
 
@@ -165,9 +180,9 @@ export default function CheckoutPage() {
                 </div>
 
                 <div className="flex items-center justify-between p-2 pl-4 border border-border/60 rounded-[16px] bg-background">
-                  <span className="font-medium text-[15px]">+996 555 123 456</span>
+                  <span className="font-medium text-[15px]">+996 503 310 794</span>
                   <Button variant="outline" size="sm" onClick={() => {
-                    navigator.clipboard.writeText("+996555123456");
+                    navigator.clipboard.writeText("+996503310794");
                     setCopiedPhone(true);
                     setTimeout(() => setCopiedPhone(false), 2000);
                   }} className={`h-9 rounded-[10px] px-4 font-medium transition-all ${copiedPhone ? 'bg-green-50/50 text-green-600 border-green-200 hover:bg-green-50 hover:text-green-600' : 'bg-transparent'}`}>
@@ -252,16 +267,12 @@ export default function CheckoutPage() {
                           <Plus className="h-3.5 w-3.5" />
                         </Button>
                         <Dialog>
-                          <DialogTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 ml-1">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
+                          <DialogTrigger className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 ml-1")}>
+                            <Trash2 className="h-4 w-4" />
                           </DialogTrigger>
                           <DialogContent showCloseButton={false} className="w-[calc(100%-2rem)] max-w-md rounded-xl p-4 gap-4 bg-background shadow-xl border overflow-hidden">
-                            <DialogClose asChild>
-                              <Button variant="ghost" className="absolute right-4 top-4 h-7 w-7 rounded-md bg-neutral-100 hover:bg-neutral-200 border-0 p-0 text-neutral-500 hover:text-neutral-700 mt-0 flex items-center justify-center transition-colors">
-                                <X className="h-4 w-4" />
-                              </Button>
+                            <DialogClose className="absolute right-4 top-4 h-7 w-7 rounded-md bg-neutral-100 hover:bg-neutral-200 border-0 p-0 text-neutral-500 hover:text-neutral-700 mt-0 flex items-center justify-center transition-colors">
+                              <X className="h-4 w-4" />
                             </DialogClose>
                             
                             <DialogHeader className="text-left space-y-2 pr-8">
@@ -275,8 +286,8 @@ export default function CheckoutPage() {
                             </DialogDescription>
                             
                             <DialogFooter className="-mx-4 -mb-4 mt-2 flex flex-row justify-end gap-2 rounded-b-xl border-t bg-muted/50 p-4 sm:space-x-0">
-                              <DialogClose asChild>
-                                <Button variant="outline" className="mt-0 flex-1 sm:flex-none bg-background">Отмена</Button>
+                              <DialogClose className={cn(buttonVariants({ variant: "outline" }), "mt-0 flex-1 sm:flex-none bg-background")}>
+                                Отмена
                               </DialogClose>
                               <Button onClick={() => removeItem(item.product.id)} className="flex-1 sm:flex-none bg-[#EF4444] text-white hover:bg-[#EF4444]/90 shadow-none">
                                 Удалить
@@ -297,11 +308,11 @@ export default function CheckoutPage() {
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-muted-foreground">Доставка</span>
-                  <span>{deliveryMethod === "pickup" ? "Бесплатно" : (deliveryCost === 0 ? "Бесплатно" : `${deliveryCost} сом`)}</span>
+                  <span>{mounted ? (deliveryMethod === "pickup" ? "Бесплатно" : (deliveryCost === 0 ? "Бесплатно" : `${deliveryCost} сом`)) : "Бесплатно"}</span>
                 </div>
                 <div className="flex justify-between items-center pt-3 border-t font-bold text-xl">
                   <span>Итого к оплате</span>
-                  <span>{finalTotal} сом</span>
+                  <span>{mounted ? finalTotal : 0} сом</span>
                 </div>
               </div>
             </CardContent>
@@ -353,9 +364,10 @@ export default function CheckoutPage() {
                 <Label htmlFor="name">Имя <span className="text-destructive">*</span></Label>
                 <Input id="name" value={name} onChange={e => setName(e.target.value)} placeholder="Иван Иванов" />
               </div>
+
               <div className="space-y-2">
                 <Label htmlFor="phone">Телефон <span className="text-destructive">*</span></Label>
-                <Input id="phone" type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+996 555 123 456" />
+                <Input id="phone" type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+996 500 000 000" />
               </div>
               
               {deliveryMethod === "delivery" && (
@@ -406,7 +418,6 @@ export default function CheckoutPage() {
                 : 'bg-muted text-muted-foreground hover:bg-muted/80'
             }`}
           >
-            <MessageCircle className="w-5 h-5 mr-2" />
             Оформить заказ на {mounted ? finalTotal : 0} сом
           </Button>
         </div>
