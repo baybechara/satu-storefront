@@ -32,6 +32,7 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { useCartStore } from "@/store/useCartStore"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
+import { Skeleton } from "@/components/ui/skeleton"
 
 const IconInstagram = ({ className, strokeWidth = 1.5 }: { className?: string, strokeWidth?: number }) => (
   <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -578,9 +579,52 @@ function Storefront() {
 
 export default function Home() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-muted flex items-center justify-center">Загрузка...</div>}>
+    <Suspense fallback={<StorefrontSkeleton />}>
       <Storefront />
     </Suspense>
+  )
+}
+
+function StorefrontSkeleton() {
+  return (
+    <div className="min-h-screen pb-28 pt-[74px] max-w-[820px] mx-auto relative bg-background">
+      {/* Header Skeleton */}
+      <div className="fixed top-0 left-0 right-0 z-40 bg-[#F4F4F5] py-4 border-b border-border/50">
+        <div className="flex justify-between items-start max-w-[820px] mx-auto px-4">
+          <Skeleton className="w-[42px] h-[42px] rounded-full" />
+          <Skeleton className="w-[120px] h-[42px] rounded-md" />
+        </div>
+      </div>
+
+      {/* Store Info Skeleton */}
+      <div className="px-4 pt-2 pb-2 relative z-20 mt-4">
+        <Skeleton className="h-8 w-3/4 mb-2" />
+        <Skeleton className="h-4 w-full mb-1" />
+        <Skeleton className="h-4 w-5/6 mb-1" />
+        <Skeleton className="h-4 w-20 mt-3" />
+      </div>
+
+      {/* Categories Skeleton */}
+      <div className="sticky top-[48px] z-30 pt-3 pb-6 bg-gradient-to-b from-[#F4F4F5] via-[#F4F4F5]/95 to-transparent">
+        <div className="flex overflow-x-auto px-4 gap-2 pb-1">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <Skeleton key={i} className="h-9 w-24 rounded-md shrink-0" />
+          ))}
+        </div>
+      </div>
+
+      {/* Product Grid Skeleton */}
+      <div className="px-4 py-4 grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div key={i} className="bg-card rounded-2xl p-3 flex flex-col border border-border/50">
+            <Skeleton className="w-full aspect-square rounded-xl mb-2.5" />
+            <Skeleton className="h-4 w-full mb-1" />
+            <Skeleton className="h-4 w-2/3 mb-2" />
+            <Skeleton className="h-5 w-1/2 mt-auto" />
+          </div>
+        ))}
+      </div>
+    </div>
   )
 }
 

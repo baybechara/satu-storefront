@@ -10,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Minus, Plus, Trash2, MessageCircle, ArrowLeft, Info, X, Copy, Check } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Dialog,
   DialogClose,
@@ -268,11 +269,31 @@ export default function CheckoutPage() {
               <CardTitle className="text-lg">Ваш заказ</CardTitle>
             </CardHeader>
             <CardContent>
-              {mounted && items.length === 0 ? (
+              {!mounted ? (
+                <div className="space-y-3">
+                  {[1, 2].map(i => (
+                    <div key={i} className="flex items-center gap-3 border border-border rounded-lg p-3 bg-card">
+                      <div className="flex items-center gap-3 flex-1">
+                        <Skeleton className="w-16 h-16 rounded-md shrink-0" />
+                        <div className="flex-1">
+                          <Skeleton className="h-4 w-3/4 mb-2" />
+                          <Skeleton className="h-4 w-1/4" />
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-1.5 shrink-0">
+                        <Skeleton className="h-8 w-8 rounded-md" />
+                        <Skeleton className="h-4 w-6" />
+                        <Skeleton className="h-8 w-8 rounded-md" />
+                        <Skeleton className="h-8 w-8 rounded-md ml-1" />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : items.length === 0 ? (
                 <div className="text-center py-6 text-muted-foreground">Корзина пуста</div>
               ) : (
                 <div className="space-y-3">
-                  {mounted && items.map((item) => (
+                  {items.map((item) => (
                     <div key={item.product.id} className="flex items-center gap-3 border border-border rounded-lg p-3 bg-card">
                       <div 
                         className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer group"
