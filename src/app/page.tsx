@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect, Suspense } from "react"
-import { Phone, ChevronDown, ChevronUp, Smartphone, PhoneCall, MapPin, Menu, MessageCircle, X } from "lucide-react"
+import { Phone, ChevronDown, ChevronUp, Smartphone, PhoneCall, MapPin, Menu, MessageCircle, X, Camera, Send } from "lucide-react"
 import Image from "next/image"
 import { ProductDrawer } from "@/components/ProductDrawer"
 import {
@@ -32,6 +32,28 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { useCartStore } from "@/store/useCartStore"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
+
+const IconInstagram = ({ className, strokeWidth = 1.5 }: { className?: string, strokeWidth?: number }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <rect width="20" height="20" x="2" y="2" rx="5" ry="5"/>
+    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+    <line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/>
+  </svg>
+)
+
+const IconTelegram = ({ className, strokeWidth = 1.5 }: { className?: string, strokeWidth?: number }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="m22 2-7 20-4-9-9-4Z"/>
+    <path d="M22 2 11 13"/>
+  </svg>
+)
+
+const IconWhatsApp = ({ className, strokeWidth = 1.5 }: { className?: string, strokeWidth?: number }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d="M3 21l1.65-3.8a9 9 0 1 1 3.4 2.9L3 21"/>
+    <path d="M9 10a.5.5 0 0 0 1 0V9a.5.5 0 0 0-1 0v1a5 5 0 0 0 5 5h1a.5.5 0 0 0 0-1h-1a.5.5 0 0 0 0 1"/>
+  </svg>
+)
 
 const STORE_INFO = {
   name: "Beko Kyrgyzstan",
@@ -289,7 +311,7 @@ function Storefront() {
                   <div className="w-full text-[14px] mb-8 flex flex-col items-center">
                     <p className="text-muted-foreground mb-6">{STORE_INFO.address}</p>
                     
-                    <div className="w-full max-w-[240px] flex flex-col items-start">
+                    <div className="w-full flex flex-col items-start">
                       <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-border/60 bg-background shadow-sm mb-3">
                         <span className={`w-2 h-2 rounded-full ${isOpen ? 'bg-[#2EA043]' : 'bg-red-500'}`} />
                         <span className="text-[13px] font-medium text-foreground leading-none mt-[1px]">{isOpen ? 'Сейчас открыто' : 'Закрыто'}</span>
@@ -371,8 +393,21 @@ function Storefront() {
                         </AccordionContent>
                       </AccordionItem>
                     </Accordion>
+                    
+                    {/* Socials */}
+                    <div className="flex items-center justify-center gap-5 mt-auto pt-8 pb-2">
+                      <a href="#" className="w-12 h-12 flex items-center justify-center rounded-full border border-border/60 bg-background hover:bg-muted transition-all text-foreground shadow-sm hover:scale-105 active:scale-95">
+                        <IconInstagram className="w-[22px] h-[22px]" strokeWidth={1.5} />
+                      </a>
+                      <a href="#" className="w-12 h-12 flex items-center justify-center rounded-full border border-border/60 bg-background hover:bg-muted transition-all text-foreground shadow-sm hover:scale-105 active:scale-95">
+                        <IconTelegram className="w-[22px] h-[22px] ml-[-2px] mt-[2px]" strokeWidth={1.5} />
+                      </a>
+                      <a href="#" className="w-12 h-12 flex items-center justify-center rounded-full border border-border/60 bg-background hover:bg-muted transition-all text-foreground shadow-sm hover:scale-105 active:scale-95">
+                        <IconWhatsApp className="w-[22px] h-[22px]" strokeWidth={1.5} />
+                      </a>
+                    </div>
                   </div>
-                  <DrawerFooter className="pt-4 pb-8">
+                  <DrawerFooter className="pt-2 pb-8">
                     <DrawerClose asChild>
                       <Button variant="outline" className="w-full h-[46px] rounded-xl font-medium shadow-none bg-background">Закрыть</Button>
                     </DrawerClose>
