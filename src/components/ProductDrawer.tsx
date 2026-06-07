@@ -17,9 +17,12 @@ import {
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel"
+import { toast } from "sonner"
+import { useCartStore } from "@/store/useCartStore"
 
 export function ProductDrawer({ product, open, onOpenChange }: { product: any, open: boolean, onOpenChange: (open: boolean) => void }) {
   const [quantity, setQuantity] = useState(1)
+  const addItem = useCartStore((state) => state.addItem)
 
   if (!product) return null
 
@@ -80,7 +83,17 @@ export function ProductDrawer({ product, open, onOpenChange }: { product: any, o
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
-            <Button size="lg" className="flex-1 ml-4 font-semibold flex justify-between items-center pl-6 pr-[4px] text-background bg-foreground hover:bg-foreground/90">
+            <Button 
+              size="lg" 
+              className="flex-1 ml-4 font-semibold flex justify-between items-center pl-6 pr-[4px] text-background bg-foreground hover:bg-foreground/90"
+              onClick={() => {
+                addItem(product, quantity)
+                toast.success('Товар добавлен в корзину', {
+                  description: `${product.name} (${quantity} шт.)`
+                });
+                onOpenChange(false);
+              }}
+            >
               <span>В корзину</span>
               <span className="bg-background/20 text-background px-4 h-[34px] flex items-center justify-center rounded-[4px] text-sm shrink-0">{product.price * quantity} сом</span>
             </Button>

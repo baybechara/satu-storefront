@@ -11,13 +11,8 @@ import { Minus, Plus, Trash2, MessageCircle, ArrowLeft, Info } from "lucide-reac
 import Image from "next/image"
 import Link from "next/link"
 
-const MOCK_CART_ITEM = {
-  id: 1,
-  name: "Утюг Beko SIM3122T",
-  price: 2884,
-  image: "https://picsum.photos/seed/iron1/600/600",
-  qty: 1
-}
+import { useCartStore } from "@/store/useCartStore"
+import { useEffect } from "react"
 
 const DELIVERY_SETTINGS = {
   pickup: {
@@ -30,12 +25,20 @@ const DELIVERY_SETTINGS = {
 }
 
 export default function CheckoutPage() {
-  const [qty, setQty] = useState(MOCK_CART_ITEM.qty)
+  const { items, totalPrice, updateQuantity, removeItem } = useCartStore()
+  const totalItemsCount = useCartStore(state => state.totalItems())
+  const itemsTotal = totalPrice()
+  const [mounted, setMounted] = useState(false)
+  
   const [deliveryMethod, setDeliveryMethod] = useState("pickup")
   const [name, setName] = useState("")
   const [phone, setPhone] = useState("")
   const [address, setAddress] = useState("")
   const [comment, setComment] = useState("")
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const isValid = name.trim() !== "" && phone.trim() !== "" && (deliveryMethod === "pickup" || address.trim() !== "")
 
@@ -47,10 +50,9 @@ export default function CheckoutPage() {
       return
     }
     // TODO: WhatsApp API integration
-    console.log("Submit", { name, phone, address, comment, deliveryMethod, qty })
+    console.log("Submit", { name, phone, address, comment, deliveryMethod, items })
   }
   
-  const itemsTotal = MOCK_CART_ITEM.price * qty
   const minOrder = 4000 // For the warning message below if needed
   
   // Calculate delivery cost based on logic from admin panel
@@ -83,33 +85,41 @@ export default function CheckoutPage() {
               <CardTitle className="text-lg">Ваш заказ</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex items-center gap-3 border border-border rounded-lg p-3 bg-card">
-                <div className="relative w-16 h-16 rounded-md overflow-hidden bg-muted flex-shrink-0 border">
-                  <Image src={MOCK_CART_ITEM.image} alt={MOCK_CART_ITEM.name} fill className="object-cover" />
+              {mounted && items.length === 0 ? (
+                <div className="text-center py-6 text-muted-foreground">Корзина пуста</div>
+              ) : (
+                <div className="space-y-3">
+                  {mounted && items.map((item) => (
+                    <div key={item.product.id} className="flex items-center gap-3 border border-border rounded-lg p-3 bg-card">
+                      <div className="relative w-16 h-16 rounded-md overflow-hidden bg-muted flex-shrink-0 border">
+                        <Image src={item.product.images[0]} alt={item.product.name} fill className="object-cover" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-medium text-foreground truncate leading-snug">{item.product.name}</h4>
+                        <div className="font-bold mt-1">{item.product.price} сом</div>
+                      </div>
+                      
+                      <div className="flex items-center gap-1.5">
+                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.product.id, Math.max(1, item.quantity - 1))} disabled={item.quantity <= 1}>
+                          <Minus className="h-3.5 w-3.5" />
+                        </Button>
+                        <span className="font-medium w-6 text-center text-sm">{item.quantity}</span>
+                        <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.product.id, item.quantity + 1)}>
+                          <Plus className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 ml-1" onClick={() => removeItem(item.product.id)}>
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-                <div className="flex-1 min-w-0">
-                  <h4 className="font-medium text-foreground truncate leading-snug">{MOCK_CART_ITEM.name}</h4>
-                  <div className="font-bold mt-1">{MOCK_CART_ITEM.price} сом</div>
-                </div>
-                
-                <div className="flex items-center gap-1.5">
-                  <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setQty(Math.max(1, qty - 1))} disabled={qty <= 1}>
-                    <Minus className="h-3.5 w-3.5" />
-                  </Button>
-                  <span className="font-medium w-6 text-center text-sm">{qty}</span>
-                  <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setQty(qty + 1)}>
-                    <Plus className="h-3.5 w-3.5" />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 ml-1">
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
+              )}
               
               <div className="mt-6 space-y-2">
                 <div className="flex justify-between items-center text-sm">
-                  <span className="text-muted-foreground">Товары ({qty})</span>
-                  <span>{itemsTotal} сом</span>
+                  <span className="text-muted-foreground">Товары ({mounted ? totalItemsCount : 0})</span>
+                  <span>{mounted ? itemsTotal : 0} сом</span>
                 </div>
                 <div className="flex justify-between items-center text-sm">
                   <span className="text-muted-foreground">Доставка</span>
@@ -215,7 +225,7 @@ export default function CheckoutPage() {
             }`}
           >
             <MessageCircle className="w-5 h-5 mr-2" />
-            Оформить заказ на {finalTotal} сом
+            Оформить заказ на {mounted ? finalTotal : 0} сом
           </Button>
         </div>
       </div>

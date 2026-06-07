@@ -6,6 +6,7 @@ import Image from "next/image"
 import { ProductDrawer } from "@/components/ProductDrawer"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { useCartStore } from "@/store/useCartStore"
 
 const STORE_INFO = {
   name: "Beko Kyrgyzstan",
@@ -63,6 +64,28 @@ const MOCK_PRODUCTS = [
     ],
     features: ["Объем: 20 л", "Мощность: 700 Вт", "Управление: Механическое"],
     description: "Простая и надежная микроволновая печь для быстрого разогрева и разморозки продуктов."
+  },
+  {
+    id: 5,
+    name: "Холодильник Beko RCNK270K20W",
+    price: 32500,
+    category: "Холодильники",
+    images: [
+      "https://picsum.photos/seed/fridge1/600/600"
+    ],
+    features: ["Система: No Frost", "Объем: 270 л", "Энергопотребление: A+"],
+    description: "Вместительный холодильник с системой No Frost. Забудьте о разморозке, продукты дольше остаются свежими."
+  },
+  {
+    id: 6,
+    name: "Стиральная машина Beko WSPE6612W",
+    price: 24900,
+    category: "Стиральные машины",
+    images: [
+      "https://picsum.photos/seed/washer1/600/600"
+    ],
+    features: ["Загрузка: 6 кг", "Отжим: 1200 об/мин", "Мотор: Инверторный"],
+    description: "Узкая стиральная машина с инверторным мотором ProSmart. Тихая работа, экономия энергии и бережная стирка."
   }
 ]
 
@@ -71,8 +94,13 @@ export default function Home() {
   const [showFullDesc, setShowFullDesc] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<any>(null)
   const [isScrolled, setIsScrolled] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  const totalItems = useCartStore((state) => state.totalItems())
+  const totalPrice = useCartStore((state) => state.totalPrice())
 
   useEffect(() => {
+    setMounted(true)
     const handleScroll = () => setIsScrolled(window.scrollY > 20)
     window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
@@ -176,20 +204,22 @@ export default function Home() {
       />
 
       {/* Floating Cart Button */}
-      <div className="fixed bottom-0 left-0 right-0 py-4 bg-gradient-to-t from-[#F4F4F5] via-[#F4F4F5] to-transparent z-40 pb-safe">
-        <Link href="/checkout" className="block max-w-[820px] mx-auto px-4">
-          <Button 
-            size="lg" 
-            className="w-full shadow-lg shadow-black/5 bg-foreground hover:bg-foreground/90 text-background flex justify-between items-center pl-[4px] pr-6"
-          >
-            <div className="bg-background/20 text-background h-[34px] px-3 text-sm rounded-[4px] flex items-center justify-center font-bold">
-              3 шт.
-            </div>
-            <span className="font-semibold text-base">Корзина</span>
-            <span className="font-bold">{3450} сом</span>
-          </Button>
-        </Link>
-      </div>
+      {mounted && totalItems > 0 && (
+        <div className="fixed bottom-0 left-0 right-0 py-4 bg-gradient-to-t from-[#F4F4F5] via-[#F4F4F5] to-transparent z-40 pb-safe">
+          <Link href="/checkout" className="block max-w-[820px] mx-auto px-4">
+            <Button 
+              size="lg" 
+              className="w-full shadow-lg shadow-black/5 bg-foreground hover:bg-foreground/90 text-background flex justify-between items-center pl-[4px] pr-6"
+            >
+              <div className="bg-background/20 text-background h-[34px] px-3 text-sm rounded-[4px] flex items-center justify-center font-bold">
+                {totalItems} шт.
+              </div>
+              <span className="font-semibold text-base">Корзина</span>
+              <span className="font-bold">{totalPrice} сом</span>
+            </Button>
+          </Link>
+        </div>
+      )}
     </main>
   )
 }
