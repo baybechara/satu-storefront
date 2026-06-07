@@ -446,6 +446,73 @@ function Storefront() {
         ))}
       </div>
 
+      {/* Footer */}
+      <footer className="mt-12 mb-4 pt-8 pb-6 px-4 border-t border-border/50 flex flex-col items-center justify-center text-center gap-4">
+        <div className="flex flex-col sm:flex-row items-center gap-3 sm:gap-6 text-[13px] text-muted-foreground font-medium">
+          <Drawer>
+            <DrawerTrigger asChild>
+              <button className="hover:text-foreground transition-colors underline-offset-4 hover:underline">Политика конфиденциальности</button>
+            </DrawerTrigger>
+            <DrawerContent>
+              <div className="max-w-[820px] mx-auto w-full px-4 pt-2 pb-8 h-[85vh] flex flex-col">
+                <DrawerHeader className="px-0 text-left">
+                  <DrawerTitle className="text-xl font-bold">Политика конфиденциальности</DrawerTitle>
+                </DrawerHeader>
+                <div className="flex-1 overflow-y-auto pr-2 text-[14.5px] text-muted-foreground leading-relaxed mt-2 text-left">
+                  <p className="mb-4">Настоящая Политика конфиденциальности описывает, как {STORE_INFO.name} собирает, использует и защищает вашу личную информацию.</p>
+                  <h4 className="font-semibold text-foreground mb-1 mt-6">1. Сбор информации</h4>
+                  <p className="mb-4">Мы собираем информацию, которую вы предоставляете при оформлении заказа: имя, номер телефона, адрес доставки. Эта информация необходима исключительно для обработки и доставки вашего заказа.</p>
+                  <h4 className="font-semibold text-foreground mb-1 mt-6">2. Использование данных</h4>
+                  <p className="mb-4">Ваши данные используются для обратной связи, подтверждения заказа и улучшения качества нашего сервиса. Мы не передаем вашу личную информацию третьим лицам без вашего согласия, за исключением случаев, предусмотренных законодательством.</p>
+                  <h4 className="font-semibold text-foreground mb-1 mt-6">3. Защита данных</h4>
+                  <p className="mb-4">Мы принимаем необходимые организационные и технические меры для защиты вашей персональной информации от неправомерного доступа, уничтожения, изменения или блокирования.</p>
+                </div>
+                <DrawerFooter className="px-0 pt-6 pb-0">
+                  <DrawerClose asChild>
+                    <Button variant="outline" className="w-full h-[46px] rounded-xl font-medium shadow-none">Закрыть</Button>
+                  </DrawerClose>
+                </DrawerFooter>
+              </div>
+            </DrawerContent>
+          </Drawer>
+
+          <Drawer>
+            <DrawerTrigger asChild>
+              <button className="hover:text-foreground transition-colors underline-offset-4 hover:underline">Пользовательское соглашение</button>
+            </DrawerTrigger>
+            <DrawerContent>
+              <div className="max-w-[820px] mx-auto w-full px-4 pt-2 pb-8 h-[85vh] flex flex-col">
+                <DrawerHeader className="px-0 text-left">
+                  <DrawerTitle className="text-xl font-bold">Пользовательское соглашение</DrawerTitle>
+                </DrawerHeader>
+                <div className="flex-1 overflow-y-auto pr-2 text-[14.5px] text-muted-foreground leading-relaxed mt-2 text-left">
+                  <p className="mb-4">Настоящее соглашение определяет условия использования сайта {STORE_INFO.name} и предоставления услуг покупки товаров.</p>
+                  <h4 className="font-semibold text-foreground mb-1 mt-6">1. Общие положения</h4>
+                  <p className="mb-4">Сайт предоставляет пользователям доступ к информации о товарах, их характеристиках и возможности оформления заказа. Оформляя заказ, вы соглашаетесь с условиями данного соглашения.</p>
+                  <h4 className="font-semibold text-foreground mb-1 mt-6">2. Оформление заказа</h4>
+                  <p className="mb-4">Продавец обязуется передать покупателю товар, соответствующий описанию на сайте. Покупатель обязуется оплатить и принять товар в соответствии с выбранным способом доставки и оплаты.</p>
+                  <h4 className="font-semibold text-foreground mb-1 mt-6">3. Гарантии и возврат</h4>
+                  <p className="mb-4">На все товары предоставляется официальная гарантия. Возврат или обмен товара надлежащего качества возможен в течение 14 дней с момента покупки, при условии сохранения товарного вида и чека.</p>
+                </div>
+                <DrawerFooter className="px-0 pt-6 pb-0">
+                  <DrawerClose asChild>
+                    <Button variant="outline" className="w-full h-[46px] rounded-xl font-medium shadow-none">Закрыть</Button>
+                  </DrawerClose>
+                </DrawerFooter>
+              </div>
+            </DrawerContent>
+          </Drawer>
+        </div>
+        <div className="text-[12px] text-muted-foreground/70">
+          © {new Date().getFullYear()} {STORE_INFO.name}. Все права защищены.
+        </div>
+        <div className="mt-2">
+          <a href="https://satu.kg" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center gap-1.5 text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors bg-muted/50 hover:bg-muted px-4 py-2 rounded-full border border-border/50">
+            Сделано в <span className="font-bold tracking-tight text-foreground">Satu.kg</span>
+          </a>
+        </div>
+      </footer>
+
       {/* Product Drawer */}
       <ProductDrawer 
         product={selectedProduct} 
