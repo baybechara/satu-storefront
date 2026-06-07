@@ -1,12 +1,13 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import { Phone, ChevronDown, ChevronUp, Smartphone, PhoneCall, MapPin, Menu } from "lucide-react"
 import Image from "next/image"
 import { ProductDrawer } from "@/components/ProductDrawer"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { useCartStore } from "@/store/useCartStore"
+import { useRouter, usePathname, useSearchParams } from "next/navigation"
 
 const STORE_INFO = {
   name: "Beko Kyrgyzstan",
@@ -89,12 +90,28 @@ const MOCK_PRODUCTS = [
   }
 ]
 
-export default function Home() {
+function Storefront() {
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams = useSearchParams()
+  const productId = searchParams.get('product')
+
   const [activeCategory, setActiveCategory] = useState("Все")
   const [showFullDesc, setShowFullDesc] = useState(false)
-  const [selectedProduct, setSelectedProduct] = useState<any>(null)
   const [isScrolled, setIsScrolled] = useState(false)
   const [mounted, setMounted] = useState(false)
+
+  const selectedProduct = productId ? MOCK_PRODUCTS.find(p => p.id === Number(productId)) || null : null
+
+  const handleProductSelect = (product: any) => {
+    router.push(`${pathname}?product=${product.id}`, { scroll: false })
+  }
+
+  const handleDrawerClose = (open: boolean) => {
+    if (!open) {
+      router.push(pathname, { scroll: false })
+    }
+  }
 
   const totalItems = useCartStore((state) => state.totalItems())
   const totalPrice = useCartStore((state) => state.totalPrice())
@@ -178,7 +195,7 @@ export default function Home() {
         {filteredProducts.map(product => (
           <div 
             key={product.id} 
-            onClick={() => setSelectedProduct(product)}
+            onClick={() => handleProductSelect(product)}
             className="bg-card text-card-foreground rounded-2xl p-3 cursor-pointer flex flex-col transition-all active:scale-[0.98]"
           >
             <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-muted mb-2.5">
@@ -200,7 +217,7 @@ export default function Home() {
       <ProductDrawer 
         product={selectedProduct} 
         open={!!selectedProduct} 
-        onOpenChange={(open) => !open && setSelectedProduct(null)} 
+        onOpenChange={handleDrawerClose} 
       />
 
       {/* Floating Cart Button */}
@@ -221,6 +238,14 @@ export default function Home() {
         </div>
       )}
     </main>
+  )
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-muted flex items-center justify-center">Загрузка...</div>}>
+      <Storefront />
+    </Suspense>
   )
 }
 
