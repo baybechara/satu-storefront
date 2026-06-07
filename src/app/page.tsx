@@ -12,6 +12,22 @@ import {
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog"
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+  DrawerTrigger,
+  DrawerClose,
+  DrawerFooter,
+} from "@/components/ui/drawer"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { useCartStore } from "@/store/useCartStore"
@@ -300,9 +316,70 @@ function Storefront() {
                 </div>
               </DialogContent>
             </Dialog>
-            <button className={`flex items-center justify-center h-full hover:bg-muted transition-colors ${isScrolled ? 'px-3' : 'px-4'}`}>
-              <Menu className={isScrolled ? "w-4 h-4" : "w-[18px] h-[18px]"} strokeWidth={2} />
-            </button>
+            <Drawer direction="right">
+              <DrawerTrigger asChild>
+                <button className={`flex items-center justify-center h-full hover:bg-muted transition-colors ${isScrolled ? 'px-3' : 'px-4'}`}>
+                  <Menu className={isScrolled ? "w-4 h-4" : "w-[18px] h-[18px]"} strokeWidth={2} />
+                </button>
+              </DrawerTrigger>
+              <DrawerContent className="bg-[#F9F9FB]">
+                <div className="w-full flex flex-col h-full">
+                  <DrawerHeader className="text-left mt-2 pb-0">
+                    <DrawerTitle className="text-xl font-bold">Меню</DrawerTitle>
+                    <DrawerDescription className="text-[15px]">Навигация по магазину и информация.</DrawerDescription>
+                  </DrawerHeader>
+                  <div className="px-4 py-4 flex flex-col flex-1 overflow-y-auto">
+                    <Accordion type="single" collapsible className="w-full">
+                      <AccordionItem value="catalog" className="border-border/50">
+                        <AccordionTrigger className="text-[16px] font-medium hover:no-underline">Каталог товаров</AccordionTrigger>
+                        <AccordionContent>
+                          <div className="flex flex-col gap-2 pt-2 pb-1">
+                            {CATEGORIES.map((cat, i) => (
+                              <DrawerClose asChild key={i}>
+                                <button 
+                                  className={`flex items-center h-[42px] px-4 rounded-md transition-all border font-medium text-left text-[14px] ${activeCategory === cat ? 'bg-foreground text-background border-foreground' : 'hover:bg-muted/50 border-border/60 bg-background text-foreground'}`}
+                                  onClick={() => {
+                                    setActiveCategory(cat)
+                                  }}
+                                >
+                                  {cat}
+                                </button>
+                              </DrawerClose>
+                            ))}
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                      
+                      <AccordionItem value="about" className="border-border/50">
+                        <AccordionTrigger className="text-[16px] font-medium hover:no-underline">О нас</AccordionTrigger>
+                        <AccordionContent className="text-[14.5px] text-muted-foreground leading-relaxed pt-1 pb-3">
+                          {STORE_INFO.description}
+                        </AccordionContent>
+                      </AccordionItem>
+                      
+                      <AccordionItem value="payment" className="border-border/50">
+                        <AccordionTrigger className="text-[16px] font-medium hover:no-underline">Оплата</AccordionTrigger>
+                        <AccordionContent className="text-[14.5px] text-muted-foreground leading-relaxed pt-1 pb-3">
+                          Мы принимаем наличные, банковские карты (Visa, MasterCard, Элкарт), а также переводы через мобильные банкинги (MBank, Optima24, O!Деньги). Возможна покупка в рассрочку.
+                        </AccordionContent>
+                      </AccordionItem>
+                      
+                      <AccordionItem value="delivery" className="border-border/50 border-b-0">
+                        <AccordionTrigger className="text-[16px] font-medium hover:no-underline">Доставка</AccordionTrigger>
+                        <AccordionContent className="text-[14.5px] text-muted-foreground leading-relaxed pt-1 pb-3">
+                          Доставка по городу Бишкек осуществляется бесплатно при заказе от 5000 сом. При заказе на меньшую сумму стоимость доставки составляет 200 сом. В регионы отправляем через курьерские службы по их тарифам.
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  </div>
+                  <DrawerFooter className="pt-4 pb-8">
+                    <DrawerClose asChild>
+                      <Button variant="outline" className="w-full h-[46px] rounded-xl font-medium shadow-none bg-background">Закрыть</Button>
+                    </DrawerClose>
+                  </DrawerFooter>
+                </div>
+              </DrawerContent>
+            </Drawer>
           </div>
         </div>
       </div>
