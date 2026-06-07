@@ -22,8 +22,46 @@ const STORE_INFO = {
   description: "Официальный магазин бытовой техники Beko. Широкий ассортимент качественной продукции для дома. Мы предоставляем гарантию 2 года на все товары и бесплатную доставку по Бишкеку.",
   shortDescription: "Официальный магазин бытовой техники Beko.",
   logo: "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?w=200&h=200&fit=crop",
-  phone: "+996 503 310 794"
+  phone: "+996 503 310 794",
+  address: "г. Бишкек, ул. Примерная, 123",
+  workingHours: [
+    { day: "Пн", hours: "08:00 - 19:00", active: true },
+    { day: "Вт", hours: "08:00 - 19:00", active: true },
+    { day: "Ср", hours: "08:00 - 19:00", active: true },
+    { day: "Чт", hours: "08:00 - 19:00", active: true },
+    { day: "Пт", hours: "выходной", active: false },
+    { day: "Сб", hours: "выходной", active: false },
+    { day: "Вс", hours: "08:00 - 19:00", active: true },
+  ]
 }
+
+const groupWorkingHours = (hours: any[]) => {
+  if (!hours || hours.length === 0) return []
+  const groups: any[] = []
+  let currentGroup: any = null
+  for (let i = 0; i < hours.length; i++) {
+    const day = hours[i]
+    const isSame = currentGroup && currentGroup.active === day.active && currentGroup.hours === day.hours
+    if (isSame) {
+      currentGroup.endDay = day.day
+    } else {
+      currentGroup = {
+        startDay: day.day,
+        endDay: day.day,
+        active: day.active,
+        hours: day.active ? day.hours : 'Выходной',
+      }
+      groups.push(currentGroup)
+    }
+  }
+  return groups.map((g: any) => ({
+    label: g.startDay === g.endDay ? g.startDay : `${g.startDay} - ${g.endDay}`,
+    hours: g.hours,
+    active: g.active
+  }))
+}
+
+const GROUPED_HOURS = groupWorkingHours(STORE_INFO.workingHours)
 
 const CATEGORIES = ["Все", "Соковыжималки", "Утюги", "Холодильники", "Стиральные машины", "Микроволновки"]
 
@@ -108,6 +146,7 @@ function Storefront() {
   const [showFullDesc, setShowFullDesc] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [mounted, setMounted] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
 
   const selectedProduct = productId ? MOCK_PRODUCTS.find(p => p.id === Number(productId)) || null : null
 
@@ -128,6 +167,27 @@ function Storefront() {
     setMounted(true)
     const handleScroll = () => setIsScrolled(window.scrollY > 20)
     window.addEventListener("scroll", handleScroll, { passive: true })
+    
+    try {
+      const bishkekTime = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Bishkek" }))
+      const day = bishkekTime.getDay()
+      const bishkekHour = bishkekTime.getHours()
+      const bishkekMinute = bishkekTime.getMinutes()
+      const currentMins = bishkekHour * 60 + bishkekMinute
+      
+      const idx = (day + 6) % 7
+      const todaySchedule = STORE_INFO.workingHours[idx]
+      
+      if (!todaySchedule.active) {
+        setIsOpen(false)
+      } else {
+        const [start, end] = todaySchedule.hours.split(" - ")
+        const [startH, startM] = start.split(":").map(Number)
+        const [endH, endM] = end.split(":").map(Number)
+        setIsOpen(currentMins >= (startH * 60 + startM) && currentMins < (endH * 60 + endM))
+      }
+    } catch(e) {}
+    
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
   
@@ -192,9 +252,54 @@ function Storefront() {
                 </div>
               </DialogContent>
             </Dialog>
-            <button className={`flex items-center justify-center h-full hover:bg-muted transition-colors border-r border-border/60 ${isScrolled ? 'px-3' : 'px-4'}`}>
-              <MapPin className={isScrolled ? "w-4 h-4" : "w-[18px] h-[18px]"} strokeWidth={2} />
-            </button>
+            <Dialog>
+              <DialogTrigger asChild>
+                <button className={`flex items-center justify-center h-full hover:bg-muted transition-colors border-r border-border/60 ${isScrolled ? 'px-3' : 'px-4'}`}>
+                  <MapPin className={isScrolled ? "w-4 h-4" : "w-[18px] h-[18px]"} strokeWidth={2} />
+                </button>
+              </DialogTrigger>
+              <DialogContent showCloseButton={false} className="w-[calc(100%-2rem)] max-w-md rounded-xl p-0 gap-0 bg-background shadow-xl border overflow-hidden">
+                <DialogClose className="absolute right-4 top-4 h-7 w-7 rounded-md bg-neutral-100 hover:bg-neutral-200 border-0 p-0 text-neutral-500 hover:text-neutral-700 mt-0 flex items-center justify-center transition-colors">
+                  <X className="h-4 w-4" />
+                </DialogClose>
+                
+                <div className="flex flex-col items-center text-center p-8 pt-10 pb-8">
+                  <div className="w-[42px] h-[42px] rounded-[12px] bg-muted/80 text-foreground flex items-center justify-center mb-5">
+                    <MapPin className="w-5 h-5" strokeWidth={1.5} />
+                  </div>
+                  
+                  <h3 className="font-semibold text-[17px] text-foreground mb-2">Наш адрес</h3>
+                  
+                  <div className="w-full text-[14px] mb-8 flex flex-col items-center">
+                    <p className="text-muted-foreground mb-6">{STORE_INFO.address}</p>
+                    
+                    <div className="w-full max-w-[240px] flex flex-col items-start">
+                      <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-border/60 bg-background shadow-sm mb-3">
+                        <span className={`w-2 h-2 rounded-full ${isOpen ? 'bg-[#2EA043]' : 'bg-red-500'}`} />
+                        <span className="text-[13px] font-medium text-foreground leading-none mt-[1px]">{isOpen ? 'Сейчас открыто' : 'Закрыто'}</span>
+                      </div>
+                      
+                      <div className="flex flex-col w-full text-left bg-muted/40 rounded-[14px] border border-border/50">
+                        {GROUPED_HOURS.map((group, i) => (
+                          <div key={i} className={`flex justify-between items-center text-[13.5px] px-4 py-3 ${i !== GROUPED_HOURS.length - 1 ? 'border-b border-border/50' : ''}`}>
+                            <span className="text-muted-foreground">{group.label}</span>
+                            <span className={group.active ? "text-foreground font-medium" : "text-muted-foreground"}>{group.hours}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <Button className="w-full sm:w-auto min-w-[180px] bg-[#84cc16] hover:bg-[#65a30d] text-white font-medium rounded-md h-9 px-4 mb-4 shadow-none">
+                    Открыть в 2ГИС
+                  </Button>
+                  
+                  <a href="#" className="text-[13px] text-muted-foreground hover:text-foreground underline underline-offset-4 transition-colors">
+                    Показать на карте
+                  </a>
+                </div>
+              </DialogContent>
+            </Dialog>
             <button className={`flex items-center justify-center h-full hover:bg-muted transition-colors ${isScrolled ? 'px-3' : 'px-4'}`}>
               <Menu className={isScrolled ? "w-4 h-4" : "w-[18px] h-[18px]"} strokeWidth={2} />
             </button>
