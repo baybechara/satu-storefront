@@ -7,7 +7,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Minus, Plus, Trash2, MessageCircle, ArrowLeft, Info, X } from "lucide-react"
+import { Minus, Plus, Trash2, MessageCircle, ArrowLeft, Info, X, Copy, Check } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import {
@@ -50,6 +50,12 @@ export default function CheckoutPage() {
     setMounted(true)
   }, [])
 
+  const [isSubmitted, setIsSubmitted] = useState(false)
+  const [orderText, setOrderText] = useState("")
+  const [copiedPhone, setCopiedPhone] = useState(false)
+  const [copiedOrder, setCopiedOrder] = useState(false)
+  const clearCart = useCartStore((state) => state.clearCart)
+
   const isValid = name.trim() !== "" && phone.trim() !== "" && (deliveryMethod === "pickup" || deliveryMethod === "info" || address.trim() !== "")
 
   const handleSubmit = (e: React.MouseEvent) => {
@@ -59,8 +65,29 @@ export default function CheckoutPage() {
       else if (deliveryMethod === "delivery" && !address.trim()) document.getElementById('address')?.focus()
       return
     }
-    // TODO: WhatsApp API integration
-    console.log("Submit", { name, phone, address, comment, deliveryMethod, items })
+
+    let text = `Здравствуйте! Хочу оформить заказ:\n\n`
+    items.forEach((item, index) => {
+      text += `${index + 1}. ${item.product.name} — ${item.quantity} шт. (${item.product.price} сом/шт.)\n`
+    })
+    
+    text += `\nИтого товары: ${itemsTotal} сом`
+    
+    if (deliveryMethod === "delivery") {
+      text += `\nДоставка: курьером (${deliveryCost === 0 ? "Бесплатно" : deliveryCost + " сом"})`
+      text += `\nСумма с доставкой: ${itemsTotal + deliveryCost} сом`
+    } else if (deliveryMethod === "pickup") {
+      text += `\nСпособ получения: Самовывоз из магазина`
+    } else {
+      text += `\nСпособ получения: Нужна консультация`
+    }
+
+    text += `\n\nДанные покупателя:\nИмя: ${name}\nТелефон: ${phone}`
+    if (deliveryMethod === "delivery" && address) text += `\nАдрес: ${address}`
+    if (comment) text += `\nКомментарий: ${comment}`
+
+    setOrderText(text)
+    setIsSubmitted(true)
   }
   
   const minOrder = 4000 // For the warning message below if needed
@@ -72,6 +99,113 @@ export default function CheckoutPage() {
   }
   
   const finalTotal = itemsTotal + deliveryCost
+
+  const handleReturnHome = (e: React.MouseEvent) => {
+    e.preventDefault()
+    clearCart()
+    window.location.href = "/"
+  }
+
+  if (isSubmitted) {
+    return (
+      <main className="min-h-screen bg-muted/30 pb-20 flex flex-col items-center pt-12 px-4">
+        <div className="w-full max-w-[600px] flex flex-col items-center">
+          <h1 className="text-[28px] leading-tight font-semibold text-foreground mb-3 tracking-tight text-center">
+            Подтвердите заказ
+          </h1>
+          <p className="text-[15px] text-muted-foreground text-center mb-8 max-w-sm">
+            Отправьте нам данные для подтверждения заказа
+          </p>
+
+          <Button 
+            className="w-full sm:w-auto px-10 bg-[#25D366] hover:bg-[#25D366]/90 text-white font-medium text-[17px] rounded-full py-7 mb-10 shadow-xl shadow-[#25D366]/20 transition-all active:scale-[0.98]"
+            onClick={() => window.open(`https://wa.me/996555123456?text=${encodeURIComponent(orderText)}`, '_blank')}
+          >
+            <MessageCircle className="w-6 h-6 mr-2.5" />
+            Отправить WhatsApp
+          </Button>
+
+          <Card className="w-full overflow-hidden border-border/50 shadow-sm rounded-[24px] bg-background">
+            <CardHeader className="bg-transparent pb-0 pt-6 px-6">
+              <div className="flex items-center justify-center relative pb-4">
+                <CardTitle className="text-[15px] font-medium text-foreground relative z-10 bg-background px-4">
+                  Состав заказа
+                </CardTitle>
+                <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 border-t border-border/60"></div>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-2 px-6 pb-8 space-y-8">
+              
+              <div className="space-y-0 bg-muted/30 p-2 rounded-[20px]">
+                {items.map((item, i) => (
+                  <div key={item.product.id} className={`flex justify-between items-center py-3 px-3 ${i !== items.length - 1 ? 'border-b border-border/50' : ''}`}>
+                    <div className="flex items-center gap-3 overflow-hidden">
+                      <div className="relative w-11 h-11 rounded-lg overflow-hidden shrink-0 border border-border/50 bg-background">
+                        <Image src={item.product.images[0]} alt={item.product.name} fill className="object-cover" />
+                      </div>
+                      <span className="text-[14px] font-medium leading-snug pr-4">{item.product.name}</span>
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                      <div className="flex items-center gap-2 text-muted-foreground bg-background border border-border/50 rounded-md px-2 py-1 text-xs">
+                        {item.quantity} шт
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                <div className="pt-4 pb-2 px-3 mt-1 flex justify-end items-center gap-4 text-[15px]">
+                  <span className="text-muted-foreground">Итого</span>
+                  <span className="font-semibold text-foreground">{finalTotal} сом</span>
+                </div>
+              </div>
+
+              <div className="space-y-4 pt-2 border-t border-border/50 border-dashed">
+                <div className="mb-6 pt-2">
+                  <h3 className="font-medium text-[15px] mb-1.5 text-foreground">WhatsApp не открывается?</h3>
+                  <p className="text-[14px] leading-relaxed text-muted-foreground">Отправьте нам информацию о заказе вручную на наш номер.</p>
+                </div>
+
+                <div className="flex items-center justify-between p-2 pl-4 border border-border/60 rounded-[16px] bg-background">
+                  <span className="font-medium text-[15px]">+996 555 123 456</span>
+                  <Button variant="outline" size="sm" onClick={() => {
+                    navigator.clipboard.writeText("+996555123456");
+                    setCopiedPhone(true);
+                    setTimeout(() => setCopiedPhone(false), 2000);
+                  }} className={`h-9 rounded-[10px] px-4 font-medium transition-all ${copiedPhone ? 'bg-green-50/50 text-green-600 border-green-200 hover:bg-green-50 hover:text-green-600' : 'bg-transparent'}`}>
+                    {copiedPhone ? <Check className="w-[18px] h-[18px] mr-2" /> : <Copy className="w-[18px] h-[18px] mr-2 text-muted-foreground" />}
+                    {copiedPhone ? "Скопировано" : "Копировать"}
+                  </Button>
+                </div>
+
+                <div className="flex items-center justify-between p-2 pl-4 border border-border/60 rounded-[16px] bg-background">
+                  <span className="font-medium text-[15px]">Детали заказа</span>
+                  <Button variant="outline" size="sm" onClick={() => {
+                    navigator.clipboard.writeText(orderText);
+                    setCopiedOrder(true);
+                    setTimeout(() => setCopiedOrder(false), 2000);
+                  }} className={`h-9 rounded-[10px] px-4 font-medium transition-all ${copiedOrder ? 'bg-green-50/50 text-green-600 border-green-200 hover:bg-green-50 hover:text-green-600' : 'bg-transparent'}`}>
+                    {copiedOrder ? <Check className="w-[18px] h-[18px] mr-2" /> : <Copy className="w-[18px] h-[18px] mr-2 text-muted-foreground" />}
+                    {copiedOrder ? "Скопировано" : "Копировать"}
+                  </Button>
+                </div>
+                
+                <Textarea 
+                  value={orderText}
+                  readOnly
+                  className="h-32 text-[13px] bg-muted/30 border-border/50 rounded-[16px] resize-none font-mono text-muted-foreground focus-visible:ring-0 px-4 py-3 shadow-none mt-2"
+                />
+              </div>
+
+            </CardContent>
+          </Card>
+          
+          <button onClick={handleReturnHome} className="mt-10 text-[14px] text-muted-foreground flex items-center hover:text-foreground transition-colors group pb-4">
+            <ArrowLeft className="w-4 h-4 mr-2 transition-transform group-hover:-translate-x-1" />
+            Вернуться на главную
+          </button>
+        </div>
+      </main>
+    )
+  }
 
   return (
     <main className="min-h-screen bg-muted/30 pb-32">
