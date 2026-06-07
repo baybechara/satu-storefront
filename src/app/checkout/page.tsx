@@ -7,9 +7,19 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Minus, Plus, Trash2, MessageCircle, ArrowLeft, Info } from "lucide-react"
+import { Minus, Plus, Trash2, MessageCircle, ArrowLeft, Info, X } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
 import { useCartStore } from "@/store/useCartStore"
 import { useEffect } from "react"
@@ -40,7 +50,7 @@ export default function CheckoutPage() {
     setMounted(true)
   }, [])
 
-  const isValid = name.trim() !== "" && phone.trim() !== "" && (deliveryMethod === "pickup" || address.trim() !== "")
+  const isValid = name.trim() !== "" && phone.trim() !== "" && (deliveryMethod === "pickup" || deliveryMethod === "info" || address.trim() !== "")
 
   const handleSubmit = (e: React.MouseEvent) => {
     if (!isValid) {
@@ -66,13 +76,13 @@ export default function CheckoutPage() {
   return (
     <main className="min-h-screen bg-muted/30 pb-32">
       {/* Sticky Header */}
-      <header className="sticky top-0 z-50 w-full bg-background border-b border-border/40">
+      <header className="sticky top-0 z-50 w-full bg-background/95 backdrop-blur-sm border-b border-border/60">
         <div className="w-full max-w-[820px] mx-auto px-4 h-16">
           <Link href="/" className="flex items-center gap-3 h-full w-full group cursor-pointer">
-            <div className="flex items-center justify-center h-9 w-9 rounded-full bg-background border border-border/50 shadow-sm shrink-0 transition-colors group-hover:bg-accent">
-              <ArrowLeft className="h-4 w-4 text-foreground/80 group-hover:text-foreground" />
+            <div className="flex items-center justify-center h-9 w-9 rounded-full bg-transparent border border-border/60 hover:bg-muted transition-colors shrink-0">
+              <ArrowLeft className="h-[18px] w-[18px] text-muted-foreground group-hover:text-foreground transition-colors" />
             </div>
-            <h1 className="text-xl font-semibold tracking-tight text-foreground">Оформить покупку</h1>
+            <h1 className="text-lg font-medium text-foreground/90">Оформить покупку</h1>
           </Link>
         </div>
       </header>
@@ -107,9 +117,39 @@ export default function CheckoutPage() {
                         <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.product.id, item.quantity + 1)}>
                           <Plus className="h-3.5 w-3.5" />
                         </Button>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 ml-1" onClick={() => removeItem(item.product.id)}>
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 ml-1">
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent showCloseButton={false} className="w-[calc(100%-2rem)] max-w-md rounded-xl p-4 gap-4 bg-background shadow-xl border overflow-hidden">
+                            <DialogClose asChild>
+                              <Button variant="ghost" className="absolute right-4 top-4 h-7 w-7 rounded-md bg-neutral-100 hover:bg-neutral-200 border-0 p-0 text-neutral-500 hover:text-neutral-700 mt-0 flex items-center justify-center transition-colors">
+                                <X className="h-4 w-4" />
+                              </Button>
+                            </DialogClose>
+                            
+                            <DialogHeader className="text-left space-y-2 pr-8">
+                              <DialogTitle className="font-heading text-base leading-none font-medium">Удалить товар?</DialogTitle>
+                            </DialogHeader>
+                            
+                            <DialogDescription asChild>
+                              <div className="text-sm text-muted-foreground">
+                                Вы уверены, что хотите удалить <span className="font-bold text-foreground">{item.product.name}</span> из заказа? Это действие пересчитает общую сумму.
+                              </div>
+                            </DialogDescription>
+                            
+                            <DialogFooter className="-mx-4 -mb-4 mt-2 flex flex-row justify-end gap-2 rounded-b-xl border-t bg-muted/50 p-4 sm:space-x-0">
+                              <DialogClose asChild>
+                                <Button variant="outline" className="mt-0 flex-1 sm:flex-none bg-background">Отмена</Button>
+                              </DialogClose>
+                              <Button onClick={() => removeItem(item.product.id)} className="flex-1 sm:flex-none bg-[#EF4444] text-white hover:bg-[#EF4444]/90 shadow-none">
+                                Удалить
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
                       </div>
                     </div>
                   ))}
@@ -139,22 +179,30 @@ export default function CheckoutPage() {
               <CardTitle className="text-lg">Способ доставки</CardTitle>
             </CardHeader>
             <CardContent>
-              <RadioGroup value={deliveryMethod} onValueChange={setDeliveryMethod} className="space-y-3">
-                <div className={`flex items-start space-x-3 rounded-lg border p-4 transition-colors cursor-pointer ${deliveryMethod === "pickup" ? "bg-primary/5 border-primary" : "border-border hover:bg-muted/50"}`} onClick={() => setDeliveryMethod("pickup")}>
-                  <RadioGroupItem value="pickup" id="pickup" className={`mt-1 ${deliveryMethod === "pickup" ? "border-primary text-primary" : ""}`} />
+              <RadioGroup value={deliveryMethod} onValueChange={setDeliveryMethod} className="gap-3">
+                <div className={`flex items-start space-x-3 rounded-lg border p-4 transition-colors cursor-pointer ${deliveryMethod === "pickup" ? "bg-[#8DC63F]/[0.08] border-[#8DC63F]" : "border-border hover:bg-muted/50"}`} onClick={() => setDeliveryMethod("pickup")}>
+                  <RadioGroupItem value="pickup" id="pickup" className={`mt-0.5 ${deliveryMethod === "pickup" ? "border-[#8DC63F] text-[#8DC63F]" : ""}`} />
                   <div className="grid gap-1.5">
-                    <Label htmlFor="pickup" className="font-medium cursor-pointer text-sm leading-none">Самовывоз из магазина</Label>
-                    <p className="text-sm text-muted-foreground">{DELIVERY_SETTINGS.pickup.address}</p>
+                    <Label htmlFor="pickup" className="font-medium cursor-pointer text-[15px] leading-none text-foreground">Самовывоз из магазина</Label>
+                    <p className="text-[14px] text-muted-foreground">{DELIVERY_SETTINGS.pickup.address}</p>
                   </div>
                 </div>
-                <div className={`flex items-start space-x-3 rounded-lg border p-4 transition-colors cursor-pointer ${deliveryMethod === "delivery" ? "bg-primary/5 border-primary" : "border-border hover:bg-muted/50"}`} onClick={() => setDeliveryMethod("delivery")}>
-                  <RadioGroupItem value="delivery" id="delivery" className={`mt-1 ${deliveryMethod === "delivery" ? "border-primary text-primary" : ""}`} />
+                
+                <div className={`flex items-start space-x-3 rounded-lg border p-4 transition-colors cursor-pointer ${deliveryMethod === "delivery" ? "bg-[#8DC63F]/[0.08] border-[#8DC63F]" : "border-border hover:bg-muted/50"}`} onClick={() => setDeliveryMethod("delivery")}>
+                  <RadioGroupItem value="delivery" id="delivery" className={`mt-0.5 ${deliveryMethod === "delivery" ? "border-[#8DC63F] text-[#8DC63F]" : ""}`} />
                   <div className="grid gap-1.5">
-                    <Label htmlFor="delivery" className="font-medium cursor-pointer text-sm leading-none">Доставка курьером</Label>
-                    <p className="text-sm text-muted-foreground">
-                      Стоимость: {DELIVERY_SETTINGS.courier.price} сом. 
-                      Бесплатно при заказе от {DELIVERY_SETTINGS.courier.freeThreshold} сом.
+                    <Label htmlFor="delivery" className="font-medium cursor-pointer text-[15px] leading-none text-foreground">Доставка курьером</Label>
+                    <p className="text-[14px] text-muted-foreground">
+                      Стоимость: {DELIVERY_SETTINGS.courier.price} сом. Бесплатно при заказе от {DELIVERY_SETTINGS.courier.freeThreshold} сом.
                     </p>
+                  </div>
+                </div>
+
+                <div className={`flex items-start space-x-3 rounded-lg border p-4 transition-colors cursor-pointer ${deliveryMethod === "info" ? "bg-[#8DC63F]/[0.08] border-[#8DC63F]" : "border-border hover:bg-muted/50"}`} onClick={() => setDeliveryMethod("info")}>
+                  <RadioGroupItem value="info" id="info" className={`mt-0.5 ${deliveryMethod === "info" ? "border-[#8DC63F] text-[#8DC63F]" : ""}`} />
+                  <div className="grid gap-1.5">
+                    <Label htmlFor="info" className="font-medium cursor-pointer text-[15px] leading-none text-foreground">Нужна дополнительная информация</Label>
+                    <p className="text-[14px] text-muted-foreground">Свяжитесь с нами через WhatsApp</p>
                   </div>
                 </div>
               </RadioGroup>
