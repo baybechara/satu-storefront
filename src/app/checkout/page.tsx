@@ -32,6 +32,23 @@ const DELIVERY_SETTINGS = {
 export default function CheckoutPage() {
   const [qty, setQty] = useState(MOCK_CART_ITEM.qty)
   const [deliveryMethod, setDeliveryMethod] = useState("pickup")
+  const [name, setName] = useState("")
+  const [phone, setPhone] = useState("")
+  const [address, setAddress] = useState("")
+  const [comment, setComment] = useState("")
+
+  const isValid = name.trim() !== "" && phone.trim() !== "" && (deliveryMethod === "pickup" || address.trim() !== "")
+
+  const handleSubmit = (e: React.MouseEvent) => {
+    if (!isValid) {
+      if (!name.trim()) document.getElementById('name')?.focus()
+      else if (!phone.trim()) document.getElementById('phone')?.focus()
+      else if (deliveryMethod === "delivery" && !address.trim()) document.getElementById('address')?.focus()
+      return
+    }
+    // TODO: WhatsApp API integration
+    console.log("Submit", { name, phone, address, comment, deliveryMethod, qty })
+  }
   
   const itemsTotal = MOCK_CART_ITEM.price * qty
   const minOrder = 4000 // For the warning message below if needed
@@ -45,7 +62,7 @@ export default function CheckoutPage() {
   const finalTotal = itemsTotal + deliveryCost
 
   return (
-    <main className="min-h-screen bg-muted/30 pb-20">
+    <main className="min-h-screen bg-muted/30 pb-32">
       {/* Sticky Header */}
       <header className="sticky top-0 z-50 w-full bg-background border-b border-border/40">
         <div className="w-full max-w-[820px] mx-auto px-4 h-16">
@@ -53,7 +70,7 @@ export default function CheckoutPage() {
             <div className="flex items-center justify-center h-9 w-9 rounded-full bg-background border border-border/50 shadow-sm shrink-0 transition-colors group-hover:bg-accent">
               <ArrowLeft className="h-4 w-4 text-foreground/80 group-hover:text-foreground" />
             </div>
-            <h1 className="text-lg font-bold text-foreground">Оформить покупку</h1>
+            <h1 className="text-xl font-semibold tracking-tight text-foreground">Оформить покупку</h1>
           </Link>
         </div>
       </header>
@@ -76,14 +93,14 @@ export default function CheckoutPage() {
                 </div>
                 
                 <div className="flex items-center gap-1.5">
-                  <Button variant="outline" size="icon" className="h-8 w-8 rounded-full" onClick={() => setQty(Math.max(1, qty - 1))} disabled={qty <= 1}>
+                  <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setQty(Math.max(1, qty - 1))} disabled={qty <= 1}>
                     <Minus className="h-3.5 w-3.5" />
                   </Button>
-                  <span className="font-medium w-4 text-center text-sm">{qty}</span>
-                  <Button variant="outline" size="icon" className="h-8 w-8 rounded-full" onClick={() => setQty(qty + 1)}>
+                  <span className="font-medium w-6 text-center text-sm">{qty}</span>
+                  <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => setQty(qty + 1)}>
                     <Plus className="h-3.5 w-3.5" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="h-8 w-8 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 ml-1">
+                  <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 ml-1">
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
@@ -113,17 +130,17 @@ export default function CheckoutPage() {
             </CardHeader>
             <CardContent>
               <RadioGroup value={deliveryMethod} onValueChange={setDeliveryMethod} className="space-y-3">
-                <div className={`flex items-start space-x-3 rounded-lg border p-4 transition-colors cursor-pointer ${deliveryMethod === "pickup" ? "bg-[#f4fce3] border-[#82c91e]" : "border-border hover:bg-muted/50"}`} onClick={() => setDeliveryMethod("pickup")}>
-                  <RadioGroupItem value="pickup" id="pickup" className={`mt-1 ${deliveryMethod === "pickup" ? "border-[#82c91e] text-[#82c91e]" : ""}`} />
+                <div className={`flex items-start space-x-3 rounded-lg border p-4 transition-colors cursor-pointer ${deliveryMethod === "pickup" ? "bg-primary/5 border-primary" : "border-border hover:bg-muted/50"}`} onClick={() => setDeliveryMethod("pickup")}>
+                  <RadioGroupItem value="pickup" id="pickup" className={`mt-1 ${deliveryMethod === "pickup" ? "border-primary text-primary" : ""}`} />
                   <div className="grid gap-1.5">
-                    <Label htmlFor="pickup" className="font-semibold cursor-pointer text-base leading-none">Самовывоз из магазина</Label>
+                    <Label htmlFor="pickup" className="font-medium cursor-pointer text-sm leading-none">Самовывоз из магазина</Label>
                     <p className="text-sm text-muted-foreground">{DELIVERY_SETTINGS.pickup.address}</p>
                   </div>
                 </div>
-                <div className={`flex items-start space-x-3 rounded-lg border p-4 transition-colors cursor-pointer ${deliveryMethod === "delivery" ? "bg-[#f4fce3] border-[#82c91e]" : "border-border hover:bg-muted/50"}`} onClick={() => setDeliveryMethod("delivery")}>
-                  <RadioGroupItem value="delivery" id="delivery" className={`mt-1 ${deliveryMethod === "delivery" ? "border-[#82c91e] text-[#82c91e]" : ""}`} />
+                <div className={`flex items-start space-x-3 rounded-lg border p-4 transition-colors cursor-pointer ${deliveryMethod === "delivery" ? "bg-primary/5 border-primary" : "border-border hover:bg-muted/50"}`} onClick={() => setDeliveryMethod("delivery")}>
+                  <RadioGroupItem value="delivery" id="delivery" className={`mt-1 ${deliveryMethod === "delivery" ? "border-primary text-primary" : ""}`} />
                   <div className="grid gap-1.5">
-                    <Label htmlFor="delivery" className="font-semibold cursor-pointer text-base leading-none">Доставка курьером</Label>
+                    <Label htmlFor="delivery" className="font-medium cursor-pointer text-sm leading-none">Доставка курьером</Label>
                     <p className="text-sm text-muted-foreground">
                       Стоимость: {DELIVERY_SETTINGS.courier.price} сом. 
                       Бесплатно при заказе от {DELIVERY_SETTINGS.courier.freeThreshold} сом.
@@ -142,36 +159,29 @@ export default function CheckoutPage() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name">Имя <span className="text-destructive">*</span></Label>
-                <Input id="name" placeholder="Иван Иванов" />
+                <Input id="name" value={name} onChange={e => setName(e.target.value)} placeholder="Иван Иванов" />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="phone">Телефон <span className="text-destructive">*</span></Label>
-                <Input id="phone" type="tel" placeholder="+996 555 123 456" />
+                <Input id="phone" type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+996 555 123 456" />
               </div>
               
               {deliveryMethod === "delivery" && (
                 <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
                   <Label htmlFor="address">Адрес доставки <span className="text-destructive">*</span></Label>
-                  <Input id="address" placeholder="Город, улица, дом, квартира..." />
+                  <Input id="address" value={address} onChange={e => setAddress(e.target.value)} placeholder="Город, улица, дом, квартира..." />
                 </div>
               )}
 
               <div className="space-y-2">
                 <Label htmlFor="comment">Комментарий к заказу</Label>
-                <Textarea id="comment" placeholder="Напишите здесь любую дополнительную информацию..." className="resize-none" rows={3} />
+                <Textarea id="comment" value={comment} onChange={e => setComment(e.target.value)} placeholder="Напишите здесь любую дополнительную информацию..." className="resize-none" rows={3} />
               </div>
             </CardContent>
           </Card>
 
           {/* Footer Submit */}
           <div className="flex flex-col gap-4 pt-4">
-            <Button 
-              size="lg"
-              className="w-full text-base font-semibold bg-[#a3e635] text-slate-900 hover:bg-[#84cc16] shadow-sm"
-            >
-              <MessageCircle className="w-5 h-5 mr-2" />
-              Оформить заказ на {finalTotal} сом
-            </Button>
 
             {/* Terms and Conditions Block */}
             <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted/80 transition-colors border border-border/50">
@@ -189,6 +199,24 @@ export default function CheckoutPage() {
               </svg>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Floating Submit Button */}
+      <div className="fixed bottom-0 left-0 right-0 py-4 bg-gradient-to-t from-[#F4F4F5] via-[#F4F4F5] to-transparent z-40 pb-safe">
+        <div className="max-w-[820px] mx-auto px-4">
+          <Button 
+            size="lg"
+            onClick={handleSubmit}
+            className={`w-full text-base font-semibold shadow-lg shadow-black/5 flex justify-center items-center transition-colors ${
+              isValid 
+                ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
+                : 'bg-muted text-muted-foreground hover:bg-muted/80'
+            }`}
+          >
+            <MessageCircle className="w-5 h-5 mr-2" />
+            Оформить заказ на {finalTotal} сом
+          </Button>
         </div>
       </div>
     </main>

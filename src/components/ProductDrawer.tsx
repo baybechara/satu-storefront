@@ -80,9 +80,9 @@ export function ProductDrawer({ product, open, onOpenChange }: { product: any, o
                 <Plus className="h-4 w-4" />
               </Button>
             </div>
-            <Button size="lg" className="flex-1 ml-4 font-semibold flex justify-between items-center pl-5 pr-1.5 py-1.5 h-[46px] rounded-full text-[#151515]">
+            <Button size="lg" className="flex-1 ml-4 font-semibold flex justify-between items-center pl-6 pr-[4px] text-background bg-foreground hover:bg-foreground/90">
               <span>В корзину</span>
-              <span className="bg-[#151515] text-white px-4 h-[34px] flex items-center justify-center rounded-full text-sm shrink-0">{product.price * quantity} сом</span>
+              <span className="bg-background/20 text-background px-4 h-[34px] flex items-center justify-center rounded-[4px] text-sm shrink-0">{product.price * quantity} сом</span>
             </Button>
           </div>
         </div>
