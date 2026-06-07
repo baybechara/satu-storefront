@@ -20,8 +20,23 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { Checkbox } from "@/components/ui/checkbox"
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer"
+import { ProductDrawer } from "@/components/ProductDrawer"
 
 import { useCartStore } from "@/store/useCartStore"
+
+const STORE_INFO = {
+  name: "Beko Kyrgyzstan",
+}
 import { useEffect } from "react"
 import { cn } from "@/lib/utils"
 
@@ -52,6 +67,14 @@ export default function CheckoutPage() {
   const [phone, setPhone] = useState("")
   const [address, setAddress] = useState("")
   const [comment, setComment] = useState("")
+  const [agreed, setAgreed] = useState(true)
+  const [selectedProduct, setSelectedProduct] = useState<any>(null)
+  const [isProductDrawerOpen, setIsProductDrawerOpen] = useState(false)
+
+  const handleProductSelect = (product: any) => {
+    setSelectedProduct(product)
+    setIsProductDrawerOpen(true)
+  }
 
   useEffect(() => {
     setMounted(true)
@@ -63,7 +86,7 @@ export default function CheckoutPage() {
   const [copiedOrder, setCopiedOrder] = useState(false)
   const clearCart = useCartStore((state) => state.clearCart)
 
-  const isValid = name.trim() !== "" && phone.trim() !== "" && (deliveryMethod === "pickup" || deliveryMethod === "info" || address.trim() !== "")
+  const isValid = name.trim() !== "" && phone.trim() !== "" && (deliveryMethod === "pickup" || deliveryMethod === "info" || address.trim() !== "") && agreed
 
   const handleSubmit = (e: React.MouseEvent) => {
     if (!isValid) {
@@ -142,11 +165,12 @@ export default function CheckoutPage() {
 
           <Card className="w-full overflow-hidden border-border/50 shadow-sm rounded-[24px] bg-background">
             <CardHeader className="bg-transparent pb-0 pt-6 px-6">
-              <div className="flex items-center justify-center relative pb-4">
-                <CardTitle className="text-[15px] font-medium text-foreground relative z-10 bg-background px-4">
+              <div className="flex items-center justify-center pb-4">
+                <div className="flex-1 border-t border-border/60"></div>
+                <CardTitle className="text-[15px] font-medium text-foreground px-4 shrink-0">
                   Состав заказа
                 </CardTitle>
-                <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 border-t border-border/60"></div>
+                <div className="flex-1 border-t border-border/60"></div>
               </div>
             </CardHeader>
             <CardContent className="pt-2 px-6 pb-8 space-y-8">
@@ -250,15 +274,20 @@ export default function CheckoutPage() {
                 <div className="space-y-3">
                   {mounted && items.map((item) => (
                     <div key={item.product.id} className="flex items-center gap-3 border border-border rounded-lg p-3 bg-card">
-                      <div className="relative w-16 h-16 rounded-md overflow-hidden bg-muted flex-shrink-0 border">
-                        <Image src={item.product.images[0]} alt={item.product.name} fill className="object-cover" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-medium text-foreground truncate leading-snug">{item.product.name}</h4>
-                        <div className="font-bold mt-1">{item.product.price} сом</div>
+                      <div 
+                        className="flex items-center gap-3 flex-1 min-w-0 cursor-pointer group"
+                        onClick={() => handleProductSelect(item.product)}
+                      >
+                        <div className="relative w-16 h-16 rounded-md overflow-hidden bg-muted flex-shrink-0 border transition-opacity group-hover:opacity-80">
+                          <Image src={item.product.images[0]} alt={item.product.name} fill className="object-cover" />
+                        </div>
+                        <div className="flex-1 min-w-0 transition-opacity group-hover:opacity-80">
+                          <h4 className="font-medium text-foreground truncate leading-snug">{item.product.name}</h4>
+                          <div className="font-bold mt-1">{item.product.price} сом</div>
+                        </div>
                       </div>
                       
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-1.5 shrink-0">
                         <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => updateQuantity(item.product.id, Math.max(1, item.quantity - 1))} disabled={item.quantity <= 1}>
                           <Minus className="h-3.5 w-3.5" />
                         </Button>
@@ -387,28 +416,86 @@ export default function CheckoutPage() {
           {/* Footer Submit */}
           <div className="flex flex-col gap-4 pt-4">
 
-            {/* Terms and Conditions Block */}
-            <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted/80 transition-colors border border-border/50">
-              <div className="flex items-start gap-3">
-                <div className="mt-0.5">
-                  <Info className="w-5 h-5 text-muted-foreground" />
-                </div>
-                <div>
-                  <h4 className="font-medium text-sm text-foreground">Важная информация</h4>
-                  <p className="text-sm text-muted-foreground">Условия доставки, возврата и оплаты</p>
-                </div>
+            {/* Terms and Conditions Checkbox */}
+            <div className="flex items-start space-x-3 mt-4 mb-2">
+              <Checkbox 
+                id="terms" 
+                checked={agreed} 
+                onCheckedChange={(checked) => setAgreed(checked as boolean)} 
+                className="mt-0.5 data-[state=checked]:bg-[#8DC63F] data-[state=checked]:border-[#8DC63F]" 
+              />
+              <div className="grid gap-1.5 leading-none">
+                <label
+                  htmlFor="terms"
+                  className="text-[14.5px] font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-foreground cursor-pointer"
+                >
+                  Я согласен с условиями
+                </label>
+                <p className="text-[13px] text-muted-foreground leading-snug">
+                  Оформляя заказ, вы принимаете{" "}
+                  <Drawer>
+                    <DrawerTrigger asChild>
+                      <button className="underline underline-offset-4 hover:text-foreground transition-colors cursor-pointer text-left">Пользовательское соглашение</button>
+                    </DrawerTrigger>
+                    <DrawerContent>
+                      <div className="max-w-[820px] mx-auto w-full px-4 pt-2 pb-8 h-[85vh] flex flex-col">
+                        <DrawerHeader className="px-0 text-left">
+                          <DrawerTitle className="text-xl font-bold">Пользовательское соглашение</DrawerTitle>
+                        </DrawerHeader>
+                        <div className="flex-1 overflow-y-auto pr-2 text-[14.5px] text-muted-foreground leading-relaxed mt-2 text-left">
+                          <p className="mb-4">Настоящее соглашение определяет условия использования сайта {STORE_INFO.name} и предоставления услуг покупки товаров.</p>
+                          <h4 className="font-semibold text-foreground mb-1 mt-6">1. Общие положения</h4>
+                          <p className="mb-4">Сайт предоставляет пользователям доступ к информации о товарах, их характеристиках и возможности оформления заказа. Оформляя заказ, вы соглашаетесь с условиями данного соглашения.</p>
+                          <h4 className="font-semibold text-foreground mb-1 mt-6">2. Оформление заказа</h4>
+                          <p className="mb-4">Продавец обязуется передать покупателю товар, соответствующий описанию на сайте. Покупатель обязуется оплатить и принять товар в соответствии с выбранным способом доставки и оплаты.</p>
+                          <h4 className="font-semibold text-foreground mb-1 mt-6">3. Гарантии и возврат</h4>
+                          <p className="mb-4">На все товары предоставляется официальная гарантия. Возврат или обмен товара надлежащего качества возможен в течение 14 дней с момента покупки, при условии сохранения товарного вида и чека.</p>
+                        </div>
+                        <DrawerFooter className="px-0 pt-6 pb-0">
+                          <DrawerClose asChild>
+                            <Button variant="outline" className="w-full h-[46px] rounded-xl font-medium shadow-none">Закрыть</Button>
+                          </DrawerClose>
+                        </DrawerFooter>
+                      </div>
+                    </DrawerContent>
+                  </Drawer>
+                  {" "}и соглашаетесь с{" "}
+                  <Drawer>
+                    <DrawerTrigger asChild>
+                      <button className="underline underline-offset-4 hover:text-foreground transition-colors cursor-pointer text-left">Политикой конфиденциальности</button>
+                    </DrawerTrigger>
+                    <DrawerContent>
+                      <div className="max-w-[820px] mx-auto w-full px-4 pt-2 pb-8 h-[85vh] flex flex-col">
+                        <DrawerHeader className="px-0 text-left">
+                          <DrawerTitle className="text-xl font-bold">Политика конфиденциальности</DrawerTitle>
+                        </DrawerHeader>
+                        <div className="flex-1 overflow-y-auto pr-2 text-[14.5px] text-muted-foreground leading-relaxed mt-2 text-left">
+                          <p className="mb-4">Настоящая Политика конфиденциальности описывает, как {STORE_INFO.name} собирает, использует и защищает вашу личную информацию.</p>
+                          <h4 className="font-semibold text-foreground mb-1 mt-6">1. Сбор информации</h4>
+                          <p className="mb-4">Мы собираем информацию, которую вы предоставляете при оформлении заказа: имя, номер телефона, адрес доставки. Эта информация необходима исключительно для обработки и доставки вашего заказа.</p>
+                          <h4 className="font-semibold text-foreground mb-1 mt-6">2. Использование данных</h4>
+                          <p className="mb-4">Ваши данные используются для обратной связи, подтверждения заказа и улучшения качества нашего сервиса. Мы не передаем вашу личную информацию третьим лицам без вашего согласия, за исключением случаев, предусмотренных законодательством.</p>
+                          <h4 className="font-semibold text-foreground mb-1 mt-6">3. Защита данных</h4>
+                          <p className="mb-4">Мы принимаем необходимые организационные и технические меры для защиты вашей персональной информации от неправомерного доступа, уничтожения, изменения или блокирования.</p>
+                        </div>
+                        <DrawerFooter className="px-0 pt-6 pb-0">
+                          <DrawerClose asChild>
+                            <Button variant="outline" className="w-full h-[46px] rounded-xl font-medium shadow-none">Закрыть</Button>
+                          </DrawerClose>
+                        </DrawerFooter>
+                      </div>
+                    </DrawerContent>
+                  </Drawer>.
+                </p>
               </div>
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground">
-                <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
-              </svg>
             </div>
           </div>
         </div>
       </div>
 
       {/* Floating Submit Button */}
-      <div className="fixed bottom-0 left-0 right-0 py-4 bg-gradient-to-t from-[#F4F4F5] via-[#F4F4F5] to-transparent z-40 pb-safe">
-        <div className="max-w-[820px] mx-auto px-4">
+      <div className="fixed bottom-0 left-0 right-0 py-4 bg-gradient-to-t from-[#F4F4F5] via-[#F4F4F5] to-transparent z-40 pb-safe pointer-events-none">
+        <div className="max-w-[820px] mx-auto px-4 pointer-events-auto">
           <Button 
             size="lg"
             onClick={handleSubmit}
@@ -422,6 +509,15 @@ export default function CheckoutPage() {
           </Button>
         </div>
       </div>
+
+      {selectedProduct && (
+        <ProductDrawer 
+          product={selectedProduct} 
+          open={isProductDrawerOpen} 
+          onOpenChange={setIsProductDrawerOpen} 
+          hideAddToCart={true}
+        />
+      )}
     </main>
   )
 }

@@ -20,7 +20,7 @@ import {
 import { toast } from "sonner"
 import { useCartStore } from "@/store/useCartStore"
 
-export function ProductDrawer({ product, open, onOpenChange }: { product: any, open: boolean, onOpenChange: (open: boolean) => void }) {
+export function ProductDrawer({ product, open, onOpenChange, hideAddToCart }: { product: any, open: boolean, onOpenChange: (open: boolean) => void, hideAddToCart?: boolean }) {
   const [quantity, setQuantity] = useState(1)
   const addItem = useCartStore((state) => state.addItem)
 
@@ -32,7 +32,7 @@ export function ProductDrawer({ product, open, onOpenChange }: { product: any, o
         <DrawerTitle className="sr-only">{product.name}</DrawerTitle>
         <DrawerDescription className="sr-only">{product.category}</DrawerDescription>
 
-        <div className="flex-1 overflow-y-auto px-4 pb-[120px] pt-4 scrollbar-hide">
+        <div className={`flex-1 overflow-y-auto px-4 pt-4 scrollbar-hide ${hideAddToCart ? 'pb-8' : 'pb-[120px]'}`}>
           {/* Image Slider */}
           <Carousel className="w-full mb-4">
             <CarouselContent className="-ml-3">
@@ -60,45 +60,47 @@ export function ProductDrawer({ product, open, onOpenChange }: { product: any, o
         </div>
 
         {/* Sticky Footer */}
-        <div className="absolute bottom-0 left-0 right-0 bg-background border-t border-border px-4 pt-3 pb-3 flex flex-col shadow-[0_-8px_30px_rgba(0,0,0,0.04)]">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Button 
-                variant="outline" 
-                size="icon" 
-                onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                disabled={quantity <= 1}
-              >
-                <Minus className="h-4 w-4" />
-              </Button>
-              <div className="flex items-center justify-center min-w-[48px]">
-                <span className="font-semibold text-base text-foreground whitespace-nowrap">{quantity} шт.</span>
+        {!hideAddToCart && (
+          <div className="absolute bottom-0 left-0 right-0 bg-background border-t border-border px-4 pt-3 pb-3 flex flex-col shadow-[0_-8px_30px_rgba(0,0,0,0.04)]">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                  disabled={quantity <= 1}
+                >
+                  <Minus className="h-4 w-4" />
+                </Button>
+                <div className="flex items-center justify-center min-w-[48px]">
+                  <span className="font-semibold text-base text-foreground whitespace-nowrap">{quantity} шт.</span>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  onClick={() => setQuantity(quantity + 1)}
+                  disabled={product.qty !== undefined && quantity >= product.qty}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
               </div>
               <Button 
-                variant="outline" 
-                size="icon" 
-                onClick={() => setQuantity(quantity + 1)}
-                disabled={product.qty !== undefined && quantity >= product.qty}
+                size="lg" 
+                className="flex-1 ml-4 font-semibold flex justify-between items-center pl-6 pr-[4px] text-background bg-foreground hover:bg-foreground/90"
+                onClick={() => {
+                  addItem(product, quantity)
+                  toast.success('Товар добавлен в корзину', {
+                    description: `${product.name} (${quantity} шт.)`
+                  });
+                  onOpenChange(false);
+                }}
               >
-                <Plus className="h-4 w-4" />
+                <span>В корзину</span>
+                <span className="bg-background/20 text-background px-4 h-[34px] flex items-center justify-center rounded-[4px] text-sm shrink-0">{product.price * quantity} сом</span>
               </Button>
             </div>
-            <Button 
-              size="lg" 
-              className="flex-1 ml-4 font-semibold flex justify-between items-center pl-6 pr-[4px] text-background bg-foreground hover:bg-foreground/90"
-              onClick={() => {
-                addItem(product, quantity)
-                toast.success('Товар добавлен в корзину', {
-                  description: `${product.name} (${quantity} шт.)`
-                });
-                onOpenChange(false);
-              }}
-            >
-              <span>В корзину</span>
-              <span className="bg-background/20 text-background px-4 h-[34px] flex items-center justify-center rounded-[4px] text-sm shrink-0">{product.price * quantity} сом</span>
-            </Button>
           </div>
-        </div>
+        )}
       </DrawerContent>
     </Drawer>
   )
