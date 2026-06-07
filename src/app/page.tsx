@@ -1,9 +1,17 @@
 "use client"
 
 import { useState, useEffect, Suspense } from "react"
-import { Phone, ChevronDown, ChevronUp, Smartphone, PhoneCall, MapPin, Menu } from "lucide-react"
+import { Phone, ChevronDown, ChevronUp, Smartphone, PhoneCall, MapPin, Menu, MessageCircle, X } from "lucide-react"
 import Image from "next/image"
 import { ProductDrawer } from "@/components/ProductDrawer"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { useCartStore } from "@/store/useCartStore"
@@ -136,11 +144,54 @@ function Storefront() {
             <Image src={STORE_INFO.logo} alt="Logo" fill className="object-cover" />
           </div>
           {/* Action Bar */}
-          <div className={`flex items-center bg-background border border-border/60 rounded-md overflow-hidden shrink-0 transition-all duration-300 ${isScrolled ? 'h-8' : 'h-[42px]'}`}>
-            <a href={`tel:${STORE_INFO.phone.replace(/\s/g, '')}`} className={`flex items-center justify-center gap-2 hover:bg-muted transition-colors border-r border-border/60 text-sm font-semibold h-full ${isScrolled ? 'px-3' : 'px-4 sm:px-3'}`}>
-              <PhoneCall className={isScrolled ? "w-4 h-4" : "w-[18px] h-[18px]"} strokeWidth={2} />
-              {!isScrolled && <span className="hidden sm:inline tracking-tight">{STORE_INFO.phone}</span>}
-            </a>
+          <div className={`flex items-stretch bg-background border border-border/60 rounded-md overflow-hidden shrink-0 transition-all duration-300 ${isScrolled ? 'h-8' : 'h-[42px]'}`}>
+            <Dialog>
+              <DialogTrigger asChild>
+                <button className={`flex items-center justify-center gap-2 hover:bg-muted transition-colors border-r border-border/60 text-sm font-semibold h-full ${isScrolled ? 'px-3' : 'px-4 sm:px-3'}`}>
+                  <PhoneCall className={isScrolled ? "w-4 h-4" : "w-[18px] h-[18px]"} strokeWidth={2} />
+                  {!isScrolled && <span className="hidden sm:inline tracking-tight">{STORE_INFO.phone}</span>}
+                </button>
+              </DialogTrigger>
+              <DialogContent showCloseButton={false} className="w-[calc(100%-2rem)] max-w-md rounded-xl p-4 gap-4 bg-background shadow-xl border overflow-hidden">
+                <DialogClose className="absolute right-4 top-4 h-7 w-7 rounded-md bg-neutral-100 hover:bg-neutral-200 border-0 p-0 text-neutral-500 hover:text-neutral-700 mt-0 flex items-center justify-center transition-colors">
+                  <X className="h-4 w-4" />
+                </DialogClose>
+                <DialogHeader className="text-left space-y-2 pr-8 p-0">
+                  <DialogTitle className="font-heading text-base leading-none font-medium">Связь с нами</DialogTitle>
+                </DialogHeader>
+                <div className="flex flex-col mt-1">
+                  <a href={`tel:${STORE_INFO.phone.replace(/\s/g, '')}`} className="flex items-center gap-4 py-3.5 border-b border-border/50 hover:bg-muted/30 transition-colors -mx-4 px-4">
+                    <div className="w-[42px] h-[42px] rounded-[12px] bg-muted/80 text-foreground flex items-center justify-center shrink-0">
+                      <Phone className="w-[18px] h-[18px]" strokeWidth={1.5} />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[14px] text-muted-foreground">Основной номер</span>
+                      <span className="font-medium text-[15px] leading-snug text-foreground mt-0.5">{STORE_INFO.phone}</span>
+                    </div>
+                  </a>
+                  
+                  <a href={`tel:+996555123456`} className="flex items-center gap-4 py-3.5 border-b border-border/50 hover:bg-muted/30 transition-colors -mx-4 px-4">
+                    <div className="w-[42px] h-[42px] rounded-[12px] bg-muted/80 text-foreground flex items-center justify-center shrink-0">
+                      <Phone className="w-[18px] h-[18px]" strokeWidth={1.5} />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[14px] text-muted-foreground">Дополнительный (Megacom)</span>
+                      <span className="font-medium text-[15px] leading-snug text-foreground mt-0.5">+996 555 123 456</span>
+                    </div>
+                  </a>
+                  
+                  <a href={`https://wa.me/${STORE_INFO.phone.replace(/\D/g, '')}`} target="_blank" className="flex items-center gap-4 py-3.5 hover:bg-muted/30 transition-colors -mx-4 px-4">
+                    <div className="w-[42px] h-[42px] rounded-[12px] bg-muted/80 text-foreground flex items-center justify-center shrink-0">
+                      <MessageCircle className="w-[18px] h-[18px]" strokeWidth={1.5} />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[14px] text-muted-foreground">Написать в WhatsApp</span>
+                      <span className="font-medium text-[15px] leading-snug text-foreground mt-0.5">{STORE_INFO.phone}</span>
+                    </div>
+                  </a>
+                </div>
+              </DialogContent>
+            </Dialog>
             <button className={`flex items-center justify-center h-full hover:bg-muted transition-colors border-r border-border/60 ${isScrolled ? 'px-3' : 'px-4'}`}>
               <MapPin className={isScrolled ? "w-4 h-4" : "w-[18px] h-[18px]"} strokeWidth={2} />
             </button>
