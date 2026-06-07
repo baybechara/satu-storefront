@@ -245,11 +245,9 @@ function Storefront() {
           {/* Action Bar */}
           <div className={`flex items-stretch bg-background border border-border/60 rounded-md overflow-hidden shrink-0 transition-all duration-300 ${isScrolled ? 'h-8' : 'h-[42px]'}`}>
             <Dialog>
-              <DialogTrigger asChild>
-                <button className={`flex items-center justify-center gap-2 hover:bg-muted transition-colors border-r border-border/60 text-sm font-semibold h-full ${isScrolled ? 'px-3' : 'px-4 sm:px-3'}`}>
-                  <PhoneCall className={isScrolled ? "w-4 h-4" : "w-[18px] h-[18px]"} strokeWidth={2} />
-                  {!isScrolled && <span className="hidden sm:inline tracking-tight">{STORE_INFO.phone}</span>}
-                </button>
+              <DialogTrigger className={`flex items-center justify-center gap-2 hover:bg-muted transition-colors border-r border-border/60 text-sm font-semibold h-full ${isScrolled ? 'px-3' : 'px-4 sm:px-3'}`}>
+                <PhoneCall className={isScrolled ? "w-4 h-4" : "w-[18px] h-[18px]"} strokeWidth={2} />
+                {!isScrolled && <span className="hidden sm:inline tracking-tight">{STORE_INFO.phone}</span>}
               </DialogTrigger>
               <DialogContent showCloseButton={false} className="w-[calc(100%-2rem)] max-w-md rounded-xl p-4 gap-4 bg-background shadow-xl border overflow-hidden">
                 <DialogClose className="absolute right-4 top-4 h-7 w-7 rounded-md bg-neutral-100 hover:bg-neutral-200 border-0 p-0 text-neutral-500 hover:text-neutral-700 mt-0 flex items-center justify-center transition-colors">
@@ -292,10 +290,8 @@ function Storefront() {
               </DialogContent>
             </Dialog>
             <Dialog>
-              <DialogTrigger asChild>
-                <button className={`flex items-center justify-center h-full hover:bg-muted transition-colors border-r border-border/60 ${isScrolled ? 'px-3' : 'px-4'}`}>
-                  <MapPin className={isScrolled ? "w-4 h-4" : "w-[18px] h-[18px]"} strokeWidth={2} />
-                </button>
+              <DialogTrigger className={`flex items-center justify-center h-full hover:bg-muted transition-colors border-r border-border/60 ${isScrolled ? 'px-3' : 'px-4'}`}>
+                <MapPin className={isScrolled ? "w-4 h-4" : "w-[18px] h-[18px]"} strokeWidth={2} />
               </DialogTrigger>
               <DialogContent showCloseButton={false} className="w-[calc(100%-2rem)] max-w-md rounded-xl p-0 gap-0 bg-background shadow-xl border overflow-hidden">
                 <DialogClose className="absolute right-4 top-4 h-7 w-7 rounded-md bg-neutral-100 hover:bg-neutral-200 border-0 p-0 text-neutral-500 hover:text-neutral-700 mt-0 flex items-center justify-center transition-colors">
@@ -352,7 +348,7 @@ function Storefront() {
                     <DrawerDescription className="text-[15px]">Навигация по магазину и информация.</DrawerDescription>
                   </DrawerHeader>
                   <div className="px-4 py-4 flex flex-col flex-1 overflow-y-auto">
-                    <Accordion type="single" collapsible className="w-full">
+                    <Accordion className="w-full">
                       <AccordionItem value="catalog" className="border-border/50">
                         <AccordionTrigger className="text-[16px] font-medium hover:no-underline">Каталог товаров</AccordionTrigger>
                         <AccordionContent>

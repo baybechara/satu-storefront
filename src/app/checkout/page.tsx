@@ -329,10 +329,8 @@ export default function CheckoutPage() {
                               <DialogTitle className="font-heading text-base leading-none font-medium">Удалить товар?</DialogTitle>
                             </DialogHeader>
                             
-                            <DialogDescription asChild>
-                              <div className="text-sm text-muted-foreground">
-                                Вы уверены, что хотите удалить <span className="font-bold text-foreground">{item.product.name}</span> из заказа? Это действие пересчитает общую сумму.
-                              </div>
+                            <DialogDescription className="text-sm text-muted-foreground">
+                              Вы уверены, что хотите удалить <span className="font-bold text-foreground">{item.product.name}</span> из заказа? Это действие пересчитает общую сумму.
                             </DialogDescription>
                             
                             <DialogFooter className="-mx-4 -mb-4 mt-2 flex flex-row justify-end gap-2 rounded-b-xl border-t bg-muted/50 p-4 sm:space-x-0">
